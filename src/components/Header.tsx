@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ShoppingCart, User, Search, Menu } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
     onCartClick?: () => void;
@@ -12,6 +13,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
     const { totalItems } = useCart();
+    const { user, logout } = useAuth();
 
     return (
         <motion.header
@@ -53,9 +55,33 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                             </span>
                         )}
                     </button>
-                    <button className="p-2 hover:bg-muted rounded-full transition-colors">
-                        <User size={20} className="text-muted-foreground" />
-                    </button>
+                    {user ? (
+                        <div className="relative group/profile">
+                            <button
+                                onClick={logout}
+                                className="p-1 hover:bg-muted rounded-full transition-colors"
+                                title="Sign Out"
+                            >
+                                {user.photoURL ? (
+                                    <img
+                                        src={user.photoURL}
+                                        alt={user.displayName || "User"}
+                                        className="w-8 h-8 rounded-full border border-border"
+                                    />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                                        {user.email?.[0].toUpperCase()}
+                                    </div>
+                                )}
+                            </button>
+                        </div>
+                    ) : (
+                        <Link href="/login">
+                            <button className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-all shadow-sm hover:shadow-md">
+                                Login
+                            </button>
+                        </Link>
+                    )}
                     <button className="p-2 md:hidden hover:bg-muted rounded-full transition-colors">
                         <Menu size={20} className="text-muted-foreground" />
                     </button>
