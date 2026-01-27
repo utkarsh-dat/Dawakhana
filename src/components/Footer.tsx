@@ -30,21 +30,9 @@ const Footer = () => {
                 <div>
                     <h4 className="text-white font-semibold mb-6">Quick Links</h4>
                     <ul className="space-y-4 text-sm">
-                        <li><Link href="/catalog" className="hover:text-primary transition-colors">Medicine Catalog</Link></li>
-                        <li><Link href="/wellness" className="hover:text-primary transition-colors">Wellness Products</Link></li>
-                        <li><Link href="/prescriptions" className="hover:text-primary transition-colors">Upload Prescription</Link></li>
-                        <li><Link href="/dashboard" className="hover:text-primary transition-colors">My Dashboard</Link></li>
-                    </ul>
-                </div>
-
-                {/* Support */}
-                <div>
-                    <h4 className="text-white font-semibold mb-6">Support</h4>
-                    <ul className="space-y-4 text-sm">
-                        <li><Link href="/faq" className="hover:text-primary transition-colors">FAQs</Link></li>
-                        <li><Link href="/shipping" className="hover:text-primary transition-colors">Shipping Policy</Link></li>
-                        <li><Link href="/returns" className="hover:text-primary transition-colors">Return Policy</Link></li>
-                        <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+                        <li><Link href="/#catalog" className="hover:text-primary transition-colors">Medicine Catalog</Link></li>
+                        <li><Link href="/orders" className="hover:text-primary transition-colors">My Orders</Link></li>
+                        <li><Link href="/checkout" className="hover:text-primary transition-colors">Cart & Checkout</Link></li>
                     </ul>
                 </div>
 
@@ -53,15 +41,15 @@ const Footer = () => {
                     <h4 className="text-white font-semibold mb-6">Contact Us</h4>
                     <div className="flex items-start gap-3 text-sm">
                         <Phone size={18} className="text-primary flex-shrink-0" />
-                        <span>+1 (800) 123-4567</span>
+                        <span>+91 6394664907</span>
                     </div>
                     <div className="flex items-start gap-3 text-sm">
                         <Mail size={18} className="text-primary flex-shrink-0" />
-                        <span>support@dawakhana.com</span>
+                        <span>Dawakhana011@gmail.com</span>
                     </div>
                     <div className="flex items-start gap-3 text-sm">
                         <MapPin size={18} className="text-primary flex-shrink-0" />
-                        <span>123 Medical Plaza, Health City, HC 56789</span>
+                        <span>Azad Nagar, Pakri Ka Pul</span>
                     </div>
                 </div>
             </div>
