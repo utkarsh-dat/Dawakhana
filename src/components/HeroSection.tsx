@@ -130,7 +130,7 @@ const HeroSection = () => {
                                                             <p className="text-[10px] text-primary font-bold uppercase tracking-wider">{item.category}</p>
                                                         </div>
                                                     </div>
-                                                    <span className="text-sm font-bold text-slate-400 group-hover:text-primary transition-colors">${item.price.toFixed(2)}</span>
+                                                    <span className="text-sm font-bold text-slate-400 group-hover:text-primary transition-colors">₹{item.price.toFixed(2)}</span>
                                                 </button>
                                             ))}
                                             <div className="p-4 border-t border-slate-50 bg-slate-50/50">

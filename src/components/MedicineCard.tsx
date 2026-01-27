@@ -56,7 +56,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
 
                 <div className="pt-4 flex items-center justify-between border-t border-slate-50">
                     <div>
-                        <span className="text-2xl font-bold text-foreground">${medicine.price.toFixed(2)}</span>
+                        <span className="text-2xl font-bold text-foreground">₹{medicine.price.toFixed(2)}</span>
                     </div>
                     <button
                         disabled={!medicine.inStock}

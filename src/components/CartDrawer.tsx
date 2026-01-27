@@ -107,7 +107,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                                                         <Plus size={14} />
                                                     </button>
                                                 </div>
-                                                <span className="font-bold text-foreground">${(item.price * item.quantity).toFixed(2)}</span>
+                                                <span className="font-bold text-foreground">₹{(item.price * item.quantity).toFixed(2)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -121,7 +121,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Subtotal</span>
-                                        <span className="font-semibold text-foreground">${subtotal.toFixed(2)}</span>
+                                        <span className="font-semibold text-foreground">₹{subtotal.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Delivery</span>
@@ -129,7 +129,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                                     </div>
                                     <div className="flex justify-between pt-2 border-t border-slate-200">
                                         <span className="font-bold text-lg">Total</span>
-                                        <span className="font-bold text-2xl text-primary">${subtotal.toFixed(2)}</span>
+                                        <span className="font-bold text-2xl text-primary">₹{subtotal.toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <Link

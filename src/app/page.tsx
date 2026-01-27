@@ -31,7 +31,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h4 className="font-bold">Free Delivery</h4>
-                  <p className="text-xs text-muted-foreground">Orders over $50</p>
+                  <p className="text-xs text-muted-foreground">Orders over ₹50</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">

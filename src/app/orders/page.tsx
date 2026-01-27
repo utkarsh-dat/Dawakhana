@@ -145,7 +145,7 @@ const OrdersPage = () => {
                                         <span className={`w-2 h-2 rounded-full ${order.status === 'Delivered' ? 'bg-green-500' : 'bg-primary animate-pulse'}`} />
                                         <span className="font-bold text-sm">{order.status}</span>
                                     </div>
-                                    <p className="text-lg font-bold">${order.total.toFixed(2)}</p>
+                                    <p className="text-lg font-bold">₹{order.total.toFixed(2)}</p>
                                 </div>
 
                                 <div className="hidden md:block">
