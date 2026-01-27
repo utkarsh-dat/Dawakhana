@@ -3,13 +3,13 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBE9dlO2lvSoYpFfqtvRLe4iOiR8tNUXJU",
-    authDomain: "dawakhana-99269.firebaseapp.com",
-    projectId: "dawakhana-99269",
-    storageBucket: "dawakhana-99269.firebasestorage.app",
-    messagingSenderId: "507485906944",
-    appId: "1:507485906944:web:260831bd16c73372f250e5",
-    measurementId: "G-V4WND4S19K"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase (singleton pattern to avoid reloading)
