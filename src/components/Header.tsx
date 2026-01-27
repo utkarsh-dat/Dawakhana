@@ -33,8 +33,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
                     <Link href="/" className="text-foreground transition-colors">Home</Link>
-                    <Link href="/catalog" className="text-muted-foreground hover:text-primary transition-colors">Catalog</Link>
-                    <Link href="/wellness" className="text-muted-foreground hover:text-primary transition-colors">Wellness</Link>
+                    <Link href="/#catalog" className="text-muted-foreground hover:text-primary transition-colors">Catalog</Link>
                     <Link href="/orders" className="text-muted-foreground hover:text-primary transition-colors">My Orders</Link>
                 </nav>
 
