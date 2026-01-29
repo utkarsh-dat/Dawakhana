@@ -232,7 +232,7 @@ const CheckoutPage = () => {
                                                     onChange={handleInputChange}
                                                     type="text"
                                                     className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
-                                                    placeholder="John"
+                                                    placeholder="Rahul"
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -243,7 +243,7 @@ const CheckoutPage = () => {
                                                     onChange={handleInputChange}
                                                     type="text"
                                                     className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
-                                                    placeholder="Doe"
+                                                    placeholder="Sharma"
                                                 />
                                             </div>
                                         </div>
@@ -254,7 +254,7 @@ const CheckoutPage = () => {
                                                 value={address.address}
                                                 onChange={(e) => setAddress(prev => ({ ...prev, address: e.target.value }))}
                                                 className="w-full h-24 px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors resize-none"
-                                                placeholder="123 Health Ave, Wellness City"
+                                                placeholder="123 MG Road, Sector 15, Gurugram, Haryana"
                                             />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
@@ -266,7 +266,7 @@ const CheckoutPage = () => {
                                                     onChange={handleInputChange}
                                                     type="text"
                                                     className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
-                                                    placeholder="+1 234 567 890"
+                                                    placeholder="+91 98765 43210"
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -277,7 +277,7 @@ const CheckoutPage = () => {
                                                     onChange={handleInputChange}
                                                     type="text"
                                                     className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
-                                                    placeholder="10001"
+                                                    placeholder="122001"
                                                 />
                                             </div>
                                         </div>
