@@ -490,7 +490,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 135,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Olz%2B20",
+        "image": "/images/medicines/393.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -501,7 +501,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 88,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Olz%2B40",
+        "image": "/images/medicines/395.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -512,7 +512,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 190,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Olz%2BH%2B20",
+        "image": "/images/medicines/397.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -523,7 +523,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 165,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Olz%2BH%2B40",
+        "image": "/images/medicines/391.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -534,7 +534,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 79,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Tamceed%2BD",
+        "image": "/images/medicines/407.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -545,7 +545,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 140,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Ranoceed%2BSR",
+        "image": "/images/medicines/411.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -600,7 +600,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 45,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Rosuna%2BASP",
+        "image": "/images/medicines/401.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -611,7 +611,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 258,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Ticaceed%2B90",
+        "image": "/images/medicines/383.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -622,7 +622,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 190,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Zedmada%2B50",
+        "image": "/images/medicines/403.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -633,7 +633,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 490,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Zedmada%2B100",
+        "image": "/images/medicines/405.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -644,7 +644,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 22.5,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdmet%2B500",
+        "image": "/images/medicines/419.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -655,7 +655,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 40.4,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdmet%2B1000%2BSR",
+        "image": "/images/medicines/417.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -666,7 +666,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 41,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Glimceed%2B1",
+        "image": "/images/medicines/421.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -677,7 +677,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 115,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Glimceed%2B1%2BMF%2BSR",
+        "image": "/images/medicines/434.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -688,7 +688,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 64.5,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Glimceed%2B2",
+        "image": "/images/medicines/428.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -699,7 +699,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 140,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Glimceed%2B2%2BMF%2BSR",
+        "image": "/images/medicines/436.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -710,7 +710,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 135,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Glimceed%2B1%2BPM",
+        "image": "/images/medicines/430.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -721,7 +721,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 157.5,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Glimceed%2B2%2BPM",
+        "image": "/images/medicines/432.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -765,7 +765,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 110,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Gludazin%2B5",
+        "image": "/images/medicines/456.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -776,7 +776,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 195,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Gludazin%2B10",
+        "image": "/images/medicines/454.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -798,7 +798,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 170,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Gludazin%2BM",
+        "image": "/images/medicines/458.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -809,7 +809,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 49,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Pioceed%2B15",
+        "image": "/images/medicines/447.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -820,7 +820,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 55,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Pioceed%2B30",
+        "image": "/images/medicines/445.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -831,7 +831,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 95,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Pioceed%2B15%2BMF",
+        "image": "/images/medicines/443.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -853,7 +853,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 139,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Sitazot%2B100",
+        "image": "/images/medicines/451.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -897,7 +897,7 @@ export const medicines: Medicine[] = [
         "category": "Diabetic",
         "price": 220,
         "description": "Diabetic medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Sitazot%2BD",
+        "image": "/images/medicines/449.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
