@@ -11,6 +11,9 @@ const categories = ["All", "Psychiatric", "Cardiac", "Diabetic"];
 const CatalogGrid = () => {
     const [activeCategory, setActiveCategory] = useState("All");
 
+    console.log("CatalogGrid: Active Category:", activeCategory);
+    console.log("CatalogGrid: Total Medicines:", medicines.length);
+
     const filteredMedicines = activeCategory === "All"
         ? medicines
         : medicines.filter(m => m.category === activeCategory);
@@ -40,26 +43,39 @@ const CatalogGrid = () => {
                 </div>
             </div>
 
-            {/* Grid */}
-            <motion.div
-                layout
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
-            >
-                <AnimatePresence mode="popLayout">
-                    {filteredMedicines.map((medicine, index) => (
-                        <motion.div
-                            key={medicine.id}
-                            layout
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            transition={{ duration: 0.3, delay: index * 0.05 }}
-                        >
-                            <MedicineCard medicine={medicine} />
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-            </motion.div>
+            {/* Debugging Info (Hidden in production usually, but helpful now) */}
+            {/* <div className="hidden">Medicines Loaded: {medicines.length}</div> */}
+
+            {filteredMedicines.length === 0 ? (
+                <div className="text-center py-20">
+                    <p className="text-xl text-muted-foreground">No medicines found in this category.</p>
+                    <button onClick={() => setActiveCategory("All")} className="mt-4 text-primary font-bold hover:underline">
+                        View All
+                    </button>
+                    {/* Debug info visible if list is empty */}
+                    <p className="text-xs text-slate-400 mt-4">Total Loaded: {medicines.length}</p>
+                </div>
+            ) : (
+                <motion.div
+                    layout
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+                >
+                    <AnimatePresence mode="popLayout">
+                        {filteredMedicines.map((medicine, index) => (
+                            <motion.div
+                                key={medicine.id}
+                                layout
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.3, delay: index * 0.05 }}
+                            >
+                                <MedicineCard medicine={medicine} />
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </motion.div>
+            )}
 
             {/* Load More/Stats */}
             <div className="mt-16 text-center">
