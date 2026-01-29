@@ -50,7 +50,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 55,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2B5",
+        "image": "/images/medicines/303.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -61,7 +61,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 91,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2B10",
+        "image": "/images/medicines/297.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -72,7 +72,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 140.5,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Amlotoz%2BAT%2B25",
+        "image": "/images/medicines/287.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -83,7 +83,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 240,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Apixaceed%2B2.5",
+        "image": "/images/medicines/293.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -94,7 +94,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 70,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2B20",
+        "image": "/images/medicines/299.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -116,7 +116,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 300,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2B80",
+        "image": "/images/medicines/305.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -127,7 +127,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 285,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Apixaceed%2B5",
+        "image": "/images/medicines/295.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -138,7 +138,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 47,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2BASP%2B150",
+        "image": "/images/medicines/311.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -149,7 +149,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 36,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2BASP%2B75",
+        "image": "/images/medicines/307.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -160,7 +160,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 41,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2BASP%2B20%2F75",
+        "image": "/images/medicines/309.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -171,7 +171,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 39,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2BASP%2B20%2F150",
+        "image": "/images/medicines/327.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -182,7 +182,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 150,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2BCV%2B10%2F75",
+        "image": "/images/medicines/329.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -193,7 +193,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 350,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdgrel%2BAT",
+        "image": "/images/medicines/337.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -215,7 +215,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 65,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2BGold%2B10",
+        "image": "/images/medicines/333.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -226,7 +226,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 94.5,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2BGold%2BForte%2B10",
+        "image": "/images/medicines/335.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -237,7 +237,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 84,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Atrona%2BGold%2B20",
+        "image": "/images/medicines/331.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -248,7 +248,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 46,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Bisoprozol%2B2.5",
+        "image": "/images/medicines/341.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -259,7 +259,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 60,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Bisoprozol%2B5",
+        "image": "/images/medicines/339.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -281,7 +281,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 43,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdtel%2B40",
+        "image": "/images/medicines/323.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -292,7 +292,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 75.5,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdtel%2BAM",
+        "image": "/images/medicines/319.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -303,7 +303,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 105,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdtel%2B40%2BAMH",
+        "image": "/images/medicines/321.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -314,7 +314,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 95,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdtel%2BH",
+        "image": "/images/medicines/317.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
