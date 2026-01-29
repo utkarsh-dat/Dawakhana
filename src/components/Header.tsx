@@ -12,7 +12,7 @@ interface HeaderProps {
     onCartClick?: () => void;
 }
 
-const ADMIN_EMAIL = "vickynishad110@gmail.com";
+const ADMIN_EMAILS = ["vickynishad110@gmail.com", "dawakhana011@gmail.com"];
 
 const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
     const { totalItems } = useCart();
@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
         }
     };
 
-    const isAdmin = user?.email === ADMIN_EMAIL;
+    const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email);
 
     return (
         <>

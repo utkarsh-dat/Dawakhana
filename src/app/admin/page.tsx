@@ -23,8 +23,8 @@ import {
     X
 } from "lucide-react";
 
-// Admin email - only this user can access this page
-const ADMIN_EMAIL = "vickynishad110@gmail.com";
+// Admin emails - only these users can access this page
+const ADMIN_EMAILS = ["vickynishad110@gmail.com", "dawakhana011@gmail.com"];
 
 interface OrderItem {
     id: string;
@@ -79,7 +79,7 @@ export default function AdminPage() {
 
     // Fetch orders in real-time
     useEffect(() => {
-        if (!user || user.email !== ADMIN_EMAIL) return;
+        if (!user || !ADMIN_EMAILS.includes(user.email || "")) return;
 
         const ordersQuery = query(
             collection(db, "orders"),
@@ -200,7 +200,7 @@ export default function AdminPage() {
     }
 
     // Logged in but not admin - show access denied
-    if (user.email !== ADMIN_EMAIL) {
+    if (!ADMIN_EMAILS.includes(user.email || "")) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
                 <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4 text-center">
