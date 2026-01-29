@@ -204,7 +204,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 74.5,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdgrel%2B75",
+        "image": "/images/medicines/343.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -325,7 +325,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 57,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdtel%2BCH%2B6.25",
+        "image": "/images/medicines/351.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -336,7 +336,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 136,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdtel%2BCH",
+        "image": "/images/medicines/359.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -347,7 +347,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 33,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Losarzed%2B25",
+        "image": "/images/medicines/373.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -358,7 +358,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 62,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Losarzed%2B50",
+        "image": "/images/medicines/367.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -369,7 +369,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 119,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdtel%2BM%2B25",
+        "image": "/images/medicines/355.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -380,7 +380,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 106,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Losarzed%2BAM",
+        "image": "/images/medicines/369.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -391,7 +391,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 66,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Losarzed%2BH",
+        "image": "/images/medicines/371.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -402,7 +402,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 75,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cdtel%2BCL",
+        "image": "/images/medicines/353.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -413,7 +413,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 103,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Ixaceed%2B10",
+        "image": "/images/medicines/363.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -424,7 +424,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 132,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Cliniceed%2B10",
+        "image": "/images/medicines/361.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -435,7 +435,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 47,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Metoceed%2BXL%2B25",
+        "image": "/images/medicines/375.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -446,7 +446,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 65,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Metoceed%2BXL%2B50",
+        "image": "/images/medicines/377.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -468,7 +468,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 165,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Nebiceed%2B5",
+        "image": "/images/medicines/381.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -556,7 +556,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 125,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Rosuna%2B10",
+        "image": "/images/medicines/385.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -567,7 +567,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 195,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Rosuna%2B5",
+        "image": "/images/medicines/387.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -589,7 +589,7 @@ export const medicines: Medicine[] = [
         "category": "Cardiac",
         "price": 96,
         "description": "Cardiac medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Torsina%2B10",
+        "image": "/images/medicines/389.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
