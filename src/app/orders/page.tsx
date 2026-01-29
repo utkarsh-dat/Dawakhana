@@ -147,7 +147,7 @@ const OrdersPage = () => {
                             {/* Orders List */}
                             <div className="space-y-4">
                                 <h3 className="text-xl font-bold px-2">Order History</h3>
-                                {orders.map((order, index) => (
+                                {orders.filter(o => o.id !== highlightedOrder?.id).map((order, index) => (
                                     <motion.div
                                         key={order.id}
                                         initial={{ opacity: 0, x: -20 }}
