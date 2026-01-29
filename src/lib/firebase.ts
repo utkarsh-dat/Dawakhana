@@ -1,7 +1,7 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, Auth } from "firebase/auth";
+import { getAnalytics, isSupported, Analytics } from "firebase/analytics";
+import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,23 +14,30 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase (singleton pattern to avoid reloading)
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let app: FirebaseApp = undefined as unknown as FirebaseApp;
+let auth: Auth = undefined as unknown as Auth;
+let googleProvider: GoogleAuthProvider = undefined as unknown as GoogleAuthProvider;
+let db: Firestore = undefined as unknown as Firestore;
+let analytics: Analytics = undefined as unknown as Analytics;
 
-// Initialize Auth
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
+if (typeof window !== 'undefined' || firebaseConfig.apiKey) {
+    try {
+        app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        auth = getAuth(app);
+        googleProvider = new GoogleAuthProvider();
+        db = getFirestore(app);
+    } catch (error) {
+        console.error("Firebase initialization error:", error);
+    }
+}
 
 // Initialize Analytics (only on client side)
-let analytics;
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && app) {
     isSupported().then((supported) => {
         if (supported) {
             analytics = getAnalytics(app);
         }
     });
 }
-
-// Initialize Firestore
-const db = getFirestore(app);
 
 export { app, auth, googleProvider, analytics, db };
