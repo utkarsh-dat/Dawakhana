@@ -42,107 +42,84 @@ const CheckoutPage = () => {
     const deliveryFee = subtotal >= DELIVERY_THRESHOLD ? 0 : STANDARD_DELIVERY_FEE;
     const total = subtotal + deliveryFee;
 
+
+
+    const [selectedMethod, setSelectedMethod] = useState<"COD" | "UPI">("COD");
+    const [utrNumber, setUtrNumber] = useState("");
+
     const placeOrder = async () => {
         if (!user) {
             alert("Please login to place an order");
             return;
         }
 
+        if (selectedMethod === "UPI" && !utrNumber) {
+            alert("Please enter the Reference/Transaction ID (UTR) after payment.");
+            return;
+        }
+
         setLoading(true);
 
         try {
-            // 1. Load Razorpay Script
-            const loadRazorpay = () => {
-                return new Promise((resolve) => {
-                    const script = document.createElement("script");
-                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-                    script.onload = () => resolve(true);
-                    script.onerror = () => resolve(false);
-                    document.body.appendChild(script);
-                });
-            };
-
-            const isLoaded = await loadRazorpay();
-            if (!isLoaded) {
-                alert("Razorpay SDK failed to load. Check your internet connection.");
-                setLoading(false);
-                return;
-            }
-
-            // 2. Create Order on Backend
-            const response = await fetch("/api/razorpay", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: total }), // Send total amount
+            await addDoc(collection(db, "orders"), {
+                userId: user.uid,
+                items: cart,
+                subtotal,
+                deliveryFee,
+                total,
+                status: selectedMethod === "UPI" ? "Pending Verification" : "Pending",
+                paymentMethod: selectedMethod === "COD" ? "Cash on Delivery" : "UPI (QR Scan)",
+                transactionId: selectedMethod === "UPI" ? utrNumber : null,
+                address,
+                createdAt: serverTimestamp(),
             });
 
-            const orderData = await response.json();
+            // For now, simpler ID generation or just rely on Firestore generated ID which we don't display immediately here usually 
+            // but let's grab the ref above if we need to show ID. 
+            // Correct logic:
+            // const orderRef = await addDoc...
+            // setOrderId(orderRef.id);
 
-            if (!response.ok) {
-                console.error("Order creation failed:", orderData);
-                alert("Failed to create order. Please try again.");
-                setLoading(false);
-                return;
-            }
-
-            // 3. Open Razorpay Options
-            const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Use Public Key on Client
-                amount: orderData.amount,
-                currency: orderData.currency,
-                name: "DawaKhana",
-                description: "Medicine Purchase",
-                order_id: orderData.id, // The Order ID from backend
-                handler: async function (response: any) {
-                    // 4. Payment Success - Save to Firebase
-                    try {
-                        const orderRef = await addDoc(collection(db, "orders"), {
-                            userId: user.uid,
-                            items: cart,
-                            subtotal,
-                            deliveryFee,
-                            total,
-                            status: "Paid", // Confirmed Paid
-                            paymentId: response.razorpay_payment_id,
-                            orderId: response.razorpay_order_id, // Link to Razorpay Order
-                            address,
-                            createdAt: serverTimestamp(),
-                            paymentMethod: "Online (Razorpay)",
-                        });
-
-                        setOrderId(orderRef.id);
-                        clearCart();
-                        setLoading(false);
-                        nextStep(); // Move to Confirm step
-                    } catch (error) {
-                        console.error("Error saving order:", error);
-                        alert("Payment successful but order saving failed. Contact support.");
-                        setLoading(false);
-                    }
-                },
-                prefill: {
-                    name: `${address.firstName} ${address.lastName}`,
-                    email: user.email || "", // Populate email if available
-                    contact: address.phoneNumber,
-                },
-                theme: {
-                    color: "#0f172a", // Match your primary/slate color
-                },
-                modal: {
-                    ondismiss: function () {
-                        setLoading(false);
-                        console.log("Payment cancelled by user");
-                    }
-                }
-            };
-
-            // @ts-ignore
-            const paymentObject = new window.Razorpay(options);
-            paymentObject.open();
-
+            // Re-implementing correctly below in clean block
         } catch (error) {
-            console.error("Payment Error:", error);
-            alert("Something went wrong with the payment.");
+            // Defined below
+        }
+    };
+
+    // REDEFINING FULL COMPONENT CONTENT TO ENSURE CLEAN SWAP
+    const handlePlaceOrder = async () => {
+        if (!user) {
+            alert("Please login to place an order");
+            return;
+        }
+
+        if (selectedMethod === "UPI" && !utrNumber) {
+            alert("Please enter the Reference/Transaction ID (UTR) after payment.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const orderRef = await addDoc(collection(db, "orders"), {
+                userId: user.uid,
+                items: cart,
+                subtotal,
+                deliveryFee,
+                total,
+                status: selectedMethod === "UPI" ? "Pending Verification" : "Order Placed",
+                paymentMethod: selectedMethod === "COD" ? "Cash on Delivery" : "UPI (QR Scan)",
+                transactionId: selectedMethod === "UPI" ? utrNumber : null,
+                address,
+                createdAt: serverTimestamp(),
+            });
+
+            setOrderId(orderRef.id);
+            clearCart();
+            nextStep();
+        } catch (error) {
+            console.error("Error placing order:", error);
+            alert("Failed to place order. Please try again.");
+        } finally {
             setLoading(false);
         }
     };
@@ -265,33 +242,67 @@ const CheckoutPage = () => {
                                     >
                                         <div className="flex items-center gap-3 mb-6">
                                             <CreditCard className="text-primary" />
-                                            <h2 className="text-xl font-bold">Payment Method</h2>
+                                            <h2 className="text-xl font-bold">Select Payment Method</h2>
                                         </div>
-                                        <div className="space-y-4">
-                                            <div className="p-4 border-2 border-primary bg-primary/5 rounded-2xl flex items-center justify-between">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-slate-100 italic font-bold text-primary">VISA</div>
-                                                    <div>
-                                                        <p className="font-bold">Visa ending in 4242</p>
-                                                        <p className="text-xs text-muted-foreground">Exp: 12/26</p>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <button
+                                                onClick={() => setSelectedMethod("COD")}
+                                                className={`p-6 rounded-2xl border-2 text-left transition-all ${selectedMethod === "COD"
+                                                    ? "border-primary bg-primary/5"
+                                                    : "border-slate-100 hover:border-slate-200"
+                                                    }`}
+                                            >
+                                                <div className="font-bold text-lg mb-1">Cash on Delivery</div>
+                                                <p className="text-sm text-muted-foreground">Pay when you receive your order.</p>
+                                            </button>
+
+                                            <button
+                                                onClick={() => setSelectedMethod("UPI")}
+                                                className={`p-6 rounded-2xl border-2 text-left transition-all ${selectedMethod === "UPI"
+                                                    ? "border-primary bg-primary/5"
+                                                    : "border-slate-100 hover:border-slate-200"
+                                                    }`}
+                                            >
+                                                <div className="font-bold text-lg mb-1">UPI / QR Scan</div>
+                                                <p className="text-sm text-muted-foreground">Scan QR and pay instantly.</p>
+                                            </button>
+                                        </div>
+
+                                        {selectedMethod === "UPI" && (
+                                            <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+                                                <div className="text-center">
+                                                    <div className="w-48 h-48 bg-white p-2 rounded-xl mx-auto border border-slate-200 mb-2 flex items-center justify-center">
+                                                        {/* Placeholder for QR Code */}
+                                                        <img
+                                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=mock-upi@okaxis&pn=DawaKhana&am=${total}&cu=INR`}
+                                                            alt="UPI QR Code"
+                                                            className="w-full h-full object-contain"
+                                                        />
                                                     </div>
+                                                    <p className="font-bold text-sm">Scan with any UPI App</p>
+                                                    <p className="text-xs text-muted-foreground">GPay, PhonePe, Paytm, etc.</p>
                                                 </div>
-                                                <div className="w-5 h-5 rounded-full border-4 border-primary bg-white" />
-                                            </div>
-                                            <div className="p-4 border border-slate-200 rounded-2xl flex items-center justify-between hover:border-primary/50 transition-colors cursor-pointer">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-slate-100 font-bold text-slate-400">GPay</div>
-                                                    <p className="font-bold">Google Pay</p>
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Enter Transaction ID / UTR</label>
+                                                    <input
+                                                        value={utrNumber}
+                                                        onChange={(e) => setUtrNumber(e.target.value)}
+                                                        type="text"
+                                                        className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
+                                                        placeholder="e.g. 123456789012"
+                                                    />
+                                                    <p className="text-[10px] text-slate-400">We will verify this ID to process your order.</p>
                                                 </div>
-                                                <div className="w-5 h-5 rounded-full border border-slate-300" />
                                             </div>
-                                        </div>
+                                        )}
+
                                         <div className="grid grid-cols-2 gap-4 pt-4">
                                             <button onClick={prevStep} className="h-14 border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-colors">
                                                 Go Back
                                             </button>
                                             <button
-                                                onClick={placeOrder}
+                                                onClick={handlePlaceOrder}
                                                 disabled={loading}
                                                 className="h-14 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all flex items-center justify-center gap-2"
                                             >
@@ -372,7 +383,7 @@ const CheckoutPage = () => {
                             <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10 flex items-start gap-3">
                                 <ShieldCheck className="text-primary flex-shrink-0" size={20} />
                                 <p className="text-[10px] text-slate-600 leading-relaxed">
-                                    Your payment is secured with 256-bit SSL encryption. DawaKhana never stores your full card details.
+                                    Your personal information is secure. We verify all manual payments within 24 hours.
                                 </p>
                             </div>
                         </div>
