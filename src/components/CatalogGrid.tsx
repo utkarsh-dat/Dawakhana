@@ -4,23 +4,33 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MedicineCard from "./MedicineCard";
 import { medicines, Medicine } from "@/lib/medicines";
-import { Filter, ChevronDown } from "lucide-react";
+import { Filter, ChevronDown, Search } from "lucide-react";
 
 const categories = ["All", "Psychiatric", "Cardiac", "Diabetic"];
 
 interface CatalogGridProps {
     limit?: number;
+    searchQuery?: string;
 }
 
-const CatalogGrid = ({ limit }: CatalogGridProps) => {
+const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
     const [activeCategory, setActiveCategory] = useState("All");
+    const [localSearch, setLocalSearch] = useState(searchQuery || "");
 
-    console.log("CatalogGrid: Active Category:", activeCategory);
-    console.log("CatalogGrid: Total Medicines:", medicines.length);
-
+    // Filter by category
     let filteredMedicines = activeCategory === "All"
         ? medicines
         : medicines.filter(m => m.category === activeCategory);
+
+    // Filter by search query (either from prop or local state)
+    const searchTerm = localSearch.toLowerCase().trim();
+    if (searchTerm) {
+        filteredMedicines = filteredMedicines.filter(m =>
+            m.name.toLowerCase().includes(searchTerm) ||
+            m.description.toLowerCase().includes(searchTerm) ||
+            m.category.toLowerCase().includes(searchTerm)
+        );
+    }
 
     // Apply limit if provided (for Homepage view)
     const isLimited = limit && filteredMedicines.length > limit;
@@ -30,13 +40,36 @@ const CatalogGrid = ({ limit }: CatalogGridProps) => {
 
     return (
         <section id="catalog" className="py-16 px-6 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
-                <div>
-                    <h2 className="text-3xl font-bold text-foreground mb-2">Our Medicine Catalog</h2>
-                    <p className="text-muted-foreground">Browse through thousands of authentic medicines and products.</p>
+            {/* Search and filters header */}
+            <div className="flex flex-col gap-6 mb-12">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-3xl font-bold text-foreground mb-2">Our Medicine Catalog</h2>
+                        <p className="text-muted-foreground">Browse through thousands of authentic medicines and products.</p>
+                    </div>
+
+                    {/* Search Input */}
+                    <div className="relative w-full md:w-80">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                        <input
+                            type="text"
+                            value={localSearch}
+                            onChange={(e) => setLocalSearch(e.target.value)}
+                            placeholder="Search medicines..."
+                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                        />
+                        {localSearch && (
+                            <button
+                                onClick={() => setLocalSearch("")}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            >
+                                ×
+                            </button>
+                        )}
+                    </div>
                 </div>
 
-                {/* Filters */}
+                {/* Category Filters */}
                 <div className="flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
                     {categories.map((category) => (
                         <button
@@ -51,19 +84,26 @@ const CatalogGrid = ({ limit }: CatalogGridProps) => {
                         </button>
                     ))}
                 </div>
-            </div>
 
-            {/* Debugging Info (Hidden in production usually, but helpful now) */}
-            {/* <div className="hidden">Medicines Loaded: {medicines.length}</div> */}
+                {/* Search result count */}
+                {localSearch && (
+                    <p className="text-sm text-slate-500">
+                        Found <span className="font-semibold text-primary">{filteredMedicines.length}</span> results for "{localSearch}"
+                    </p>
+                )}
+            </div>
 
             {filteredMedicines.length === 0 ? (
                 <div className="text-center py-20">
-                    <p className="text-xl text-muted-foreground">No medicines found in this category.</p>
-                    <button onClick={() => setActiveCategory("All")} className="mt-4 text-primary font-bold hover:underline">
-                        View All
+                    <p className="text-xl text-muted-foreground">
+                        {localSearch ? `No medicines found for "${localSearch}"` : "No medicines found in this category."}
+                    </p>
+                    <button
+                        onClick={() => { setActiveCategory("All"); setLocalSearch(""); }}
+                        className="mt-4 text-primary font-bold hover:underline"
+                    >
+                        View All Medicines
                     </button>
-                    {/* Debug info visible if list is empty */}
-                    <p className="text-xs text-slate-400 mt-4">Total Loaded: {medicines.length}</p>
                 </div>
             ) : (
                 <motion.div
