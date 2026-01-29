@@ -41,8 +41,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const loginWithGoogle = async () => {
         try {
             await signInWithPopup(auth, googleProvider);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error logging in with Google:", error);
+
+            // Handle specific Firebase Auth errors
+            if (error?.code === 'auth/popup-closed-by-user') {
+                alert("Login cancelled. You closed the popup.");
+            } else if (error?.code === 'auth/cancelled-popup-request') {
+                // Multiple popups, ignore
+            } else if (error?.code === 'auth/unauthorized-domain') {
+                alert("Login failed: This domain is not authorized in Firebase Console. Please add it to Authentication > Settings > Authorized Domains.");
+            } else if (error?.code === 'auth/operation-not-allowed') {
+                alert("Login failed: Google/Email provider is not enabled in Firebase Console.");
+            } else {
+                alert(`Login failed: ${error.message || "Unknown error"}`);
+            }
             throw error;
         }
     };
