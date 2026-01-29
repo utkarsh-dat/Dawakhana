@@ -49,26 +49,100 @@ const CheckoutPage = () => {
         }
 
         setLoading(true);
+
         try {
-            const orderRef = await addDoc(collection(db, "orders"), {
-                userId: user.uid,
-                items: cart,
-                subtotal,
-                deliveryFee,
-                total,
-                status: "Pending",
-                address,
-                createdAt: serverTimestamp(),
-                paymentMethod: "Card", // Hardcoded for now as per UI
+            // 1. Load Razorpay Script
+            const loadRazorpay = () => {
+                return new Promise((resolve) => {
+                    const script = document.createElement("script");
+                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                    script.onload = () => resolve(true);
+                    script.onerror = () => resolve(false);
+                    document.body.appendChild(script);
+                });
+            };
+
+            const isLoaded = await loadRazorpay();
+            if (!isLoaded) {
+                alert("Razorpay SDK failed to load. Check your internet connection.");
+                setLoading(false);
+                return;
+            }
+
+            // 2. Create Order on Backend
+            const response = await fetch("/api/razorpay", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: total }), // Send total amount
             });
 
-            setOrderId(orderRef.id);
-            clearCart();
-            nextStep(); // Move to Confirm step
+            const orderData = await response.json();
+
+            if (!response.ok) {
+                console.error("Order creation failed:", orderData);
+                alert("Failed to create order. Please try again.");
+                setLoading(false);
+                return;
+            }
+
+            // 3. Open Razorpay Options
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Use Public Key on Client
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "DawaKhana",
+                description: "Medicine Purchase",
+                order_id: orderData.id, // The Order ID from backend
+                handler: async function (response: any) {
+                    // 4. Payment Success - Save to Firebase
+                    try {
+                        const orderRef = await addDoc(collection(db, "orders"), {
+                            userId: user.uid,
+                            items: cart,
+                            subtotal,
+                            deliveryFee,
+                            total,
+                            status: "Paid", // Confirmed Paid
+                            paymentId: response.razorpay_payment_id,
+                            orderId: response.razorpay_order_id, // Link to Razorpay Order
+                            address,
+                            createdAt: serverTimestamp(),
+                            paymentMethod: "Online (Razorpay)",
+                        });
+
+                        setOrderId(orderRef.id);
+                        clearCart();
+                        setLoading(false);
+                        nextStep(); // Move to Confirm step
+                    } catch (error) {
+                        console.error("Error saving order:", error);
+                        alert("Payment successful but order saving failed. Contact support.");
+                        setLoading(false);
+                    }
+                },
+                prefill: {
+                    name: `${address.firstName} ${address.lastName}`,
+                    email: user.email || "", // Populate email if available
+                    contact: address.phoneNumber,
+                },
+                theme: {
+                    color: "#0f172a", // Match your primary/slate color
+                },
+                modal: {
+                    ondismiss: function () {
+                        setLoading(false);
+                        console.log("Payment cancelled by user");
+                    }
+                }
+            };
+
+            // @ts-ignore
+            const paymentObject = new window.Razorpay(options);
+            paymentObject.open();
+
         } catch (error) {
-            console.error("Error placing order:", error);
-            alert("Failed to place order. Please try again.");
-        } finally {
+            console.error("Payment Error:", error);
+            alert("Something went wrong with the payment.");
             setLoading(false);
         }
     };
