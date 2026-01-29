@@ -2,20 +2,71 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, CreditCard, Truck, CheckCircle, ShieldCheck } from "lucide-react";
+import { ChevronRight, CreditCard, Truck, CheckCircle, ShieldCheck, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import CartState from "@/components/CartState";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { DeliveryAddress } from "@/lib/types";
 
 const steps = ["Delivery", "Payment", "Confirm"];
 
 const CheckoutPage = () => {
-    const { cart, subtotal } = useCart();
+    const { cart, subtotal, clearCart } = useCart();
+    const { user } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [orderId, setOrderId] = useState<string | null>(null);
+
+    const [address, setAddress] = useState<DeliveryAddress>({
+        firstName: "",
+        lastName: "",
+        address: "",
+        phoneNumber: "",
+        postalCode: "",
+    });
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setAddress((prev) => ({ ...prev, [name]: value }));
+    };
 
     const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
     const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+
+    const placeOrder = async () => {
+        if (!user) {
+            alert("Please login to place an order");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const orderRef = await addDoc(collection(db, "orders"), {
+                userId: user.uid,
+                items: cart,
+                subtotal,
+                deliveryFee: 0,
+                total: subtotal,
+                status: "Pending",
+                address,
+                createdAt: serverTimestamp(),
+                paymentMethod: "Card", // Hardcoded for now as per UI
+            });
+
+            setOrderId(orderRef.id);
+            clearCart();
+            nextStep(); // Move to Confirm step
+        } catch (error) {
+            console.error("Error placing order:", error);
+            alert("Failed to place order. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-50">
@@ -63,25 +114,60 @@ const CheckoutPage = () => {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">First Name</label>
-                                                <input type="text" className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors" placeholder="John" />
+                                                <input
+                                                    name="firstName"
+                                                    value={address.firstName}
+                                                    onChange={handleInputChange}
+                                                    type="text"
+                                                    className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
+                                                    placeholder="John"
+                                                />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Last Name</label>
-                                                <input type="text" className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors" placeholder="Doe" />
+                                                <input
+                                                    name="lastName"
+                                                    value={address.lastName}
+                                                    onChange={handleInputChange}
+                                                    type="text"
+                                                    className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
+                                                    placeholder="Doe"
+                                                />
                                             </div>
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Full Address</label>
-                                            <input type="text" className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors" placeholder="123 Health Ave, Wellness City" />
+                                            <input
+                                                name="address"
+                                                value={address.address}
+                                                onChange={handleInputChange}
+                                                type="text"
+                                                className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
+                                                placeholder="123 Health Ave, Wellness City"
+                                            />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Phone Number</label>
-                                                <input type="text" className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors" placeholder="+1 234 567 890" />
+                                                <input
+                                                    name="phoneNumber"
+                                                    value={address.phoneNumber}
+                                                    onChange={handleInputChange}
+                                                    type="text"
+                                                    className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
+                                                    placeholder="+1 234 567 890"
+                                                />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Postal Code</label>
-                                                <input type="text" className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors" placeholder="10001" />
+                                                <input
+                                                    name="postalCode"
+                                                    value={address.postalCode}
+                                                    onChange={handleInputChange}
+                                                    type="text"
+                                                    className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
+                                                    placeholder="10001"
+                                                />
                                             </div>
                                         </div>
                                         <button onClick={nextStep} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all mt-4">
@@ -125,8 +211,12 @@ const CheckoutPage = () => {
                                             <button onClick={prevStep} className="h-14 border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-colors">
                                                 Go Back
                                             </button>
-                                            <button onClick={nextStep} className="h-14 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all">
-                                                Review Order
+                                            <button
+                                                onClick={placeOrder}
+                                                disabled={loading}
+                                                className="h-14 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all flex items-center justify-center gap-2"
+                                            >
+                                                {loading ? <Loader2 className="animate-spin" /> : "Place Order"}
                                             </button>
                                         </div>
                                     </motion.div>
@@ -145,7 +235,7 @@ const CheckoutPage = () => {
                                         </div>
                                         <h2 className="text-3xl font-bold">Order Received!</h2>
                                         <p className="text-muted-foreground max-w-sm mx-auto">
-                                            Thank you for choosing DawaKhana. Your order #DK-92841 is being processed and will be delivered within 30 minutes.
+                                            Thank you for choosing DawaKhana. Your order #{orderId} is being processed.
                                         </p>
                                         <div className="pt-6 flex flex-col gap-3">
                                             <Link href="/orders" className="h-14 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center hover:bg-primary transition-all">
