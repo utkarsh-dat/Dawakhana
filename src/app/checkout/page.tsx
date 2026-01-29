@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, CreditCard, Truck, CheckCircle, ShieldCheck, Loader2 } from "lucide-react";
+import { ChevronRight, CreditCard, Truck, CheckCircle, ShieldCheck, Loader2, MapPin } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import CartState from "@/components/CartState";
@@ -21,6 +21,9 @@ const CheckoutPage = () => {
     const [loading, setLoading] = useState(false);
     const [orderId, setOrderId] = useState<string | null>(null);
 
+    // Location State
+    const [detectingLocation, setDetectingLocation] = useState(false);
+
     const [address, setAddress] = useState<DeliveryAddress>({
         firstName: "",
         lastName: "",
@@ -32,6 +35,41 @@ const CheckoutPage = () => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setAddress((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const detectLocation = () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            return;
+        }
+
+        setDetectingLocation(true);
+
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            try {
+                const { latitude, longitude } = position.coords;
+                // Use OpenStreetMap Nominatim API (Free)
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                const data = await response.json();
+
+                if (data && data.address) {
+                    setAddress(prev => ({
+                        ...prev,
+                        address: data.display_name,
+                        postalCode: data.address.postcode || prev.postalCode,
+                    }));
+                }
+            } catch (error) {
+                console.error("Location detection failed:", error);
+                alert("Could not fetch location address.");
+            } finally {
+                setDetectingLocation(false);
+            }
+        }, (error) => {
+            console.error(error);
+            alert("Unable to retrieve your location. Check permissions.");
+            setDetectingLocation(false);
+        });
     };
 
     const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
@@ -163,9 +201,19 @@ const CheckoutPage = () => {
                                         exit={{ opacity: 0, x: 20 }}
                                         className="bg-white p-8 rounded-[2rem] border border-slate-100 premium-shadow space-y-6"
                                     >
-                                        <div className="flex items-center gap-3 mb-6">
-                                            <Truck className="text-primary" />
-                                            <h2 className="text-xl font-bold">Delivery Address</h2>
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="flex items-center gap-3">
+                                                <Truck className="text-primary" />
+                                                <h2 className="text-xl font-bold">Delivery Address</h2>
+                                            </div>
+                                            <button
+                                                onClick={detectLocation}
+                                                disabled={detectingLocation}
+                                                className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"
+                                            >
+                                                {detectingLocation ? <Loader2 size={12} className="animate-spin" /> : <MapPin size={12} />}
+                                                Use Present Location
+                                            </button>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
@@ -193,12 +241,11 @@ const CheckoutPage = () => {
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Full Address</label>
-                                            <input
+                                            <textarea
                                                 name="address"
                                                 value={address.address}
-                                                onChange={handleInputChange}
-                                                type="text"
-                                                className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors"
+                                                onChange={(e) => setAddress(prev => ({ ...prev, address: e.target.value }))}
+                                                className="w-full h-24 px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-primary transition-colors resize-none"
                                                 placeholder="123 Health Ave, Wellness City"
                                             />
                                         </div>
@@ -273,12 +320,27 @@ const CheckoutPage = () => {
                                             <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
                                                 <div className="text-center">
                                                     <div className="w-48 h-48 bg-white p-2 rounded-xl mx-auto border border-slate-200 mb-2 flex items-center justify-center">
-                                                        {/* Placeholder for QR Code */}
-                                                        <img
-                                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=mock-upi@okaxis&pn=DawaKhana&am=${total}&cu=INR`}
-                                                            alt="UPI QR Code"
-                                                            className="w-full h-full object-contain"
-                                                        />
+                                                        {/* Dynamic QR Code - Robust Generation */}
+                                                        {(() => {
+                                                            const upiId = process.env.NEXT_PUBLIC_UPI_ID || "8707535798@ybl";
+                                                            const payeeName = "DawaKhana";
+                                                            const amount = total.toFixed(2);
+                                                            const note = `Order Payment`;
+
+                                                            // Construct the raw UPI string first
+                                                            const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+
+                                                            // Encode the entire string for the QR API parameter
+                                                            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiString)}`;
+
+                                                            return (
+                                                                <img
+                                                                    src={qrApiUrl}
+                                                                    alt="UPI QR Code"
+                                                                    className="w-full h-full object-contain"
+                                                                />
+                                                            );
+                                                        })()}
                                                     </div>
                                                     <p className="font-bold text-sm">Scan with any UPI App</p>
                                                     <p className="text-xs text-muted-foreground">GPay, PhonePe, Paytm, etc.</p>
