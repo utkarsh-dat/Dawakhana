@@ -8,15 +8,25 @@ import { Filter, ChevronDown } from "lucide-react";
 
 const categories = ["All", "Psychiatric", "Cardiac", "Diabetic"];
 
-const CatalogGrid = () => {
+interface CatalogGridProps {
+    limit?: number;
+}
+
+const CatalogGrid = ({ limit }: CatalogGridProps) => {
     const [activeCategory, setActiveCategory] = useState("All");
 
     console.log("CatalogGrid: Active Category:", activeCategory);
     console.log("CatalogGrid: Total Medicines:", medicines.length);
 
-    const filteredMedicines = activeCategory === "All"
+    let filteredMedicines = activeCategory === "All"
         ? medicines
         : medicines.filter(m => m.category === activeCategory);
+
+    // Apply limit if provided (for Homepage view)
+    const isLimited = limit && filteredMedicines.length > limit;
+    if (limit) {
+        filteredMedicines = filteredMedicines.slice(0, limit);
+    }
 
     return (
         <section id="catalog" className="py-16 px-6 max-w-7xl mx-auto">
@@ -79,11 +89,22 @@ const CatalogGrid = () => {
 
             {/* Load More/Stats */}
             <div className="mt-16 text-center">
-                <p className="text-sm text-muted-foreground mb-6">Showing {filteredMedicines.length} of {medicines.length} items</p>
-                <button className="px-8 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-colors premium-shadow inline-flex items-center gap-2">
-                    View All Products
-                    <ChevronDown size={20} />
-                </button>
+                {limit && (
+                    <p className="text-sm text-muted-foreground mb-6">Showing {filteredMedicines.length} top products</p>
+                )}
+                {!limit && (
+                    <p className="text-sm text-muted-foreground mb-6">Showing {filteredMedicines.length} of {medicines.length} items</p>
+                )}
+
+                {limit ? (
+                    <a href="/catalog" className="px-8 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-colors premium-shadow inline-flex items-center gap-2">
+                        View All Products
+                        <ChevronDown size={20} className="-rotate-90" />
+                    </a>
+                ) : (
+                    // On full catalog, maybe hide or show something else
+                    <div className="text-slate-400 text-sm">End of Catalog</div>
+                )}
             </div>
         </section>
     );

@@ -31,16 +31,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h4 className="font-bold">Free Delivery</h4>
-                  <p className="text-xs text-muted-foreground">Orders over ₹50</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600">
-                  <Clock size={28} />
-                </div>
-                <div>
-                  <h4 className="font-bold">Express Service</h4>
-                  <p className="text-xs text-muted-foreground">24/7 Delivery</p>
+                  <p className="text-xs text-muted-foreground">Orders over ₹200</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -56,7 +47,7 @@ export default function Home() {
           </div>
         </section>
 
-        <CatalogGrid />
+        <CatalogGrid limit={12} />
 
         {/* Prescription Banner */}
         <section className="max-w-7xl mx-auto px-6 mb-20">

@@ -37,6 +37,11 @@ const CheckoutPage = () => {
     const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
     const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
+    const DELIVERY_THRESHOLD = 200;
+    const STANDARD_DELIVERY_FEE = 40;
+    const deliveryFee = subtotal >= DELIVERY_THRESHOLD ? 0 : STANDARD_DELIVERY_FEE;
+    const total = subtotal + deliveryFee;
+
     const placeOrder = async () => {
         if (!user) {
             alert("Please login to place an order");
@@ -49,8 +54,8 @@ const CheckoutPage = () => {
                 userId: user.uid,
                 items: cart,
                 subtotal,
-                deliveryFee: 0,
-                total: subtotal,
+                deliveryFee,
+                total,
                 status: "Pending",
                 address,
                 createdAt: serverTimestamp(),
@@ -277,11 +282,15 @@ const CheckoutPage = () => {
                                     </div>
                                     <div className="flex justify-between text-xs">
                                         <span className="text-muted-foreground">Delivery</span>
-                                        <span className="text-green-600 font-bold">Free</span>
+                                        {deliveryFee === 0 ? (
+                                            <span className="text-green-600 font-bold">Free</span>
+                                        ) : (
+                                            <span className="font-bold">₹{deliveryFee.toFixed(2)}</span>
+                                        )}
                                     </div>
                                     <div className="flex justify-between pt-2 border-t border-slate-100">
                                         <span className="font-bold">Total</span>
-                                        <span className="text-lg font-bold text-primary">₹{subtotal.toFixed(2)}</span>
+                                        <span className="text-lg font-bold text-primary">₹{total.toFixed(2)}</span>
                                     </div>
                                 </div>
                             </div>

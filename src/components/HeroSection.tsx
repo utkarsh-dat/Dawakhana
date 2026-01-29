@@ -162,12 +162,7 @@ const HeroSection = () => {
                             </div>
                             <span className="text-sm font-medium">Verified Pharmacists</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <div className="p-2 bg-slate-100 rounded-lg">
-                                <Zap size={20} className="text-primary" />
-                            </div>
-                            <span className="text-sm font-medium">Fast Delivery</span>
-                        </div>
+
                         <div className="flex items-center gap-2">
                             <div className="p-2 bg-slate-100 rounded-lg">
                                 <UserCheck size={20} className="text-primary" />
@@ -200,22 +195,7 @@ const HeroSection = () => {
                         </div>
                     </div>
 
-                    {/* Floating cards */}
-                    <motion.div
-                        animate={{ y: [0, -10, 0] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -top-10 -left-10 glass p-6 rounded-2xl premium-shadow"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                                <Zap size={20} className="text-green-600" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Express</p>
-                                <p className="font-bold">15-20 Min Delivery</p>
-                            </div>
-                        </div>
-                    </motion.div>
+
 
                     <motion.div
                         animate={{ y: [0, 10, 0] }}
