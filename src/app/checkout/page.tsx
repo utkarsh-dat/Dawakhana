@@ -72,7 +72,15 @@ const CheckoutPage = () => {
         });
     };
 
-    const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    const nextStep = () => {
+        if (currentStep === 0) {
+            if (!address.firstName || !address.lastName || !address.address || !address.phoneNumber || !address.postalCode) {
+                alert("Please fill in all address fields to proceed.");
+                return;
+            }
+        }
+        setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    };
     const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
     const DELIVERY_THRESHOLD = 200;
