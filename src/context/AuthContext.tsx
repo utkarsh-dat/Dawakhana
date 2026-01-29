@@ -30,6 +30,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!auth) {
+            console.warn("AuthContext: Firebase Auth is not initialized. Check your environment variables.");
+            setLoading(false);
+            return;
+        }
+
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             setLoading(false);
@@ -39,6 +45,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     const loginWithGoogle = async () => {
+        if (!auth) {
+            alert("Authentication is not configured. Please check site settings.");
+            return;
+        }
+
         try {
             await signInWithPopup(auth, googleProvider);
         } catch (error: any) {
@@ -61,6 +72,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const logout = async () => {
+        if (!auth) return;
+
         try {
             await signOut(auth);
         } catch (error) {
