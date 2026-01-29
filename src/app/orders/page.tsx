@@ -35,6 +35,13 @@ const OrdersPage = () => {
             })) as Order[];
             setOrders(ordersData);
             setLoading(false);
+        }, (error) => {
+            console.error("Error fetching orders:", error);
+            // Common error: Missing index
+            if (error.code === 'failed-precondition') {
+                alert("System Config Needed: The 'Orders' list requires a Firestore Index. Check the browser console for the creation link.");
+            }
+            setLoading(false);
         });
 
         return () => unsubscribe();
