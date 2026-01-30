@@ -1,7 +1,16 @@
+import { Metadata } from "next";
 import CatalogGrid from "@/components/CatalogGrid";
 import Footer from "@/components/Footer";
 import CartState from "@/components/CartState";
 
+export const metadata: Metadata = {
+    title: "Medicine Catalog - Browse All Medicines",
+    description: "Browse our complete collection of authentic medicines. Cardiac, diabetic, and psychiatric medicines at best prices. Filter by category and search for specific medicines.",
+    openGraph: {
+        title: "Medicine Catalog | DawaKhana",
+        description: "Browse our complete collection of authentic medicines at best prices.",
+    },
+};
 export default function CatalogPage() {
     return (
         <div className="min-h-screen flex flex-col bg-slate-50">

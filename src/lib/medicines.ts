@@ -1139,7 +1139,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 760,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Divalgem%2B250%2BER",
+        "image": "/images/medicines/715.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1150,7 +1150,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 60.5,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Citigem%2BP",
+        "image": "/images/medicines/713.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1172,7 +1172,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 50,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Divalgem%2B500%2BER",
+        "image": "/images/medicines/717.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1183,7 +1183,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 100.5,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Escitagem%2B10",
+        "image": "/images/medicines/741.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1194,7 +1194,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 160.5,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Escitagem%2B20",
+        "image": "/images/medicines/739.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1227,7 +1227,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 53.5,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Flunagem%2B10",
+        "image": "/images/medicines/721.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1238,7 +1238,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 60,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Flupent%2BTablet",
+        "image": "/images/medicines/731.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1249,7 +1249,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 44.5,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Fluogem%2BCapsule",
+        "image": "/images/medicines/735.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1271,7 +1271,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 130,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Gemtine%2BCR%2B12.5",
+        "image": "/images/medicines/737.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1282,7 +1282,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 209,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Gemtine%2BCR%2B25",
+        "image": "/images/medicines/733.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0
@@ -1293,7 +1293,7 @@ export const medicines: Medicine[] = [
         "category": "Psychiatric",
         "price": 145,
         "description": "Psychiatric medication for effective treatment.",
-        "image": "https://placehold.co/100x100?text=Levigem%2B500",
+        "image": "/images/medicines/723.png",
         "inStock": true,
         "rating": 4.5,
         "reviews": 0

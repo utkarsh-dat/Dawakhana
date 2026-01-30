@@ -32,10 +32,12 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
         );
     }
 
-    // Apply limit if provided (for Homepage view)
-    const isLimited = limit && filteredMedicines.length > limit;
+    // For homepage (with limit), only show medicines with real images
     if (limit) {
-        filteredMedicines = filteredMedicines.slice(0, limit);
+        const medicinesWithImages = filteredMedicines.filter(m =>
+            !m.image.includes('placehold.co')
+        );
+        filteredMedicines = medicinesWithImages.slice(0, limit);
     }
 
     return (

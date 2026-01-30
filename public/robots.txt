@@ -1,0 +1,21 @@
+# Robots.txt for DawaKhana Online Pharmacy
+# https://dawakhana.netlify.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://dawakhana.netlify.app/sitemap.xml
+
+# Crawl-delay (optional, be gentle with the server)
+Crawl-delay: 1
+
+# Disallow private pages
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin
+
+# Allow important assets
+Allow: /images/
+Allow: /*.js$
+Allow: /*.css$
