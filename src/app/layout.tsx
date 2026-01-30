@@ -83,10 +83,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-inter antialiased bg-background text-foreground`}
       >
+        <JsonLd />
         <AuthProvider>
           <CartProvider>
             {children}
-            <JsonLd />
             {/* Version 1.2: SEO Updated */}
           </CartProvider>
         </AuthProvider>
