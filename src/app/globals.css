@@ -40,10 +40,22 @@
     border-color: var(--muted);
   }
 
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     background: var(--background);
     color: var(--foreground);
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Prevent horizontal overflow on mobile */
+  html, body {
+    overflow-x: hidden;
   }
 }
 
@@ -64,11 +76,40 @@
     box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
       0 4px 10px -5px rgba(0, 0, 0, 0.02);
   }
+
+  /* Hide scrollbar for horizontal scroll elements */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area padding for notched devices */
+  .safe-area-padding {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Better touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+}
+
+@media (min-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
 }
 
 ::-webkit-scrollbar-track {
@@ -81,4 +122,20 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-400;
+}
+
+/* Extra small breakpoint for very small phones */
+@media (min-width: 320px) {
+  .xs\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .xs\:flex-row {
+    flex-direction: row;
+  }
+  .xs\:items-center {
+    align-items: center;
+  }
+  .xs\:h-40 {
+    height: 10rem;
+  }
 }

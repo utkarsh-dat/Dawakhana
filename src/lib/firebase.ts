@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, Auth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, Auth, browserLocalPersistence, setPersistence } from "firebase/auth";
 import { getAnalytics, isSupported, Analytics } from "firebase/analytics";
 import { getFirestore, Firestore } from "firebase/firestore";
 
@@ -24,6 +24,14 @@ if (typeof window !== 'undefined' || firebaseConfig.apiKey) {
     try {
         app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
         auth = getAuth(app);
+
+        // Explicitly set persistence to LOCAL so sessions survive browser/PC restarts
+        if (typeof window !== 'undefined') {
+            setPersistence(auth, browserLocalPersistence).catch((error) => {
+                console.error("Firebase persistence error:", error);
+            });
+        }
+
         googleProvider = new GoogleAuthProvider();
         db = getFirestore(app);
     } catch (error) {

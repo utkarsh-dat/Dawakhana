@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MedicineCard from "./MedicineCard";
 import { medicines, Medicine } from "@/lib/medicines";
-import { Filter, ChevronDown, Search } from "lucide-react";
+import { Filter, ChevronDown, Search, X } from "lucide-react";
 
 const categories = ["All", "Psychiatric", "Cardiac", "Diabetic"];
 
@@ -39,43 +39,43 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
     }
 
     return (
-        <section id="catalog" className="py-16 px-6 max-w-7xl mx-auto">
+        <section id="catalog" className="py-12 sm:py-16 px-4 sm:px-6 max-w-7xl mx-auto">
             {/* Search and filters header */}
-            <div className="flex flex-col gap-6 mb-12">
+            <div className="flex flex-col gap-4 sm:gap-6 mb-8 sm:mb-12">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-3xl font-bold text-foreground mb-2">Our Medicine Catalog</h2>
-                        <p className="text-muted-foreground">Browse through thousands of authentic medicines and products.</p>
+                    <div className="text-center md:text-left">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Our Medicine Catalog</h2>
+                        <p className="text-sm sm:text-base text-muted-foreground">Browse through thousands of authentic medicines and products.</p>
                     </div>
 
                     {/* Search Input */}
                     <div className="relative w-full md:w-80">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input
                             type="text"
                             value={localSearch}
                             onChange={(e) => setLocalSearch(e.target.value)}
                             placeholder="Search medicines..."
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                            className="w-full pl-11 pr-10 py-2.5 sm:py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition text-sm sm:text-base"
                         />
                         {localSearch && (
                             <button
                                 onClick={() => setLocalSearch("")}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
                             >
-                                ×
+                                <X size={16} />
                             </button>
                         )}
                     </div>
                 </div>
 
-                {/* Category Filters */}
-                <div className="flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
+                {/* Category Filters - Horizontal scroll on mobile */}
+                <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
                     {categories.map((category) => (
                         <button
                             key={category}
                             onClick={() => setActiveCategory(category)}
-                            className={`px-6 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${activeCategory === category
+                            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0 ${activeCategory === category
                                 ? "bg-primary text-white shadow-lg shadow-primary/20"
                                 : "bg-white border border-slate-200 text-muted-foreground hover:border-primary/30"
                                 }`}
@@ -87,15 +87,15 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
 
                 {/* Search result count */}
                 {localSearch && (
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-slate-500 text-center md:text-left">
                         Found <span className="font-semibold text-primary">{filteredMedicines.length}</span> results for "{localSearch}"
                     </p>
                 )}
             </div>
 
             {filteredMedicines.length === 0 ? (
-                <div className="text-center py-20">
-                    <p className="text-xl text-muted-foreground">
+                <div className="text-center py-12 sm:py-20">
+                    <p className="text-lg sm:text-xl text-muted-foreground">
                         {localSearch ? `No medicines found for "${localSearch}"` : "No medicines found in this category."}
                     </p>
                     <button
@@ -108,7 +108,7 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
             ) : (
                 <motion.div
                     layout
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
                 >
                     <AnimatePresence mode="popLayout">
                         {filteredMedicines.map((medicine, index) => (
@@ -128,22 +128,22 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
             )}
 
             {/* Load More/Stats */}
-            <div className="mt-16 text-center">
+            <div className="mt-10 sm:mt-16 text-center">
                 {limit && (
-                    <p className="text-sm text-muted-foreground mb-6">Showing {filteredMedicines.length} top products</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">Showing {filteredMedicines.length} top products</p>
                 )}
                 {!limit && (
-                    <p className="text-sm text-muted-foreground mb-6">Showing {filteredMedicines.length} of {medicines.length} items</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">Showing {filteredMedicines.length} of {medicines.length} items</p>
                 )}
 
                 {limit ? (
-                    <a href="/catalog" className="px-8 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-colors premium-shadow inline-flex items-center gap-2">
+                    <a href="/catalog" className="px-6 sm:px-8 py-3 sm:py-4 bg-white border border-slate-200 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base hover:bg-slate-50 transition-colors premium-shadow inline-flex items-center gap-2">
                         View All Products
-                        <ChevronDown size={20} className="-rotate-90" />
+                        <ChevronDown size={18} className="-rotate-90 sm:hidden" />
+                        <ChevronDown size={20} className="-rotate-90 hidden sm:block" />
                     </a>
                 ) : (
-                    // On full catalog, maybe hide or show something else
-                    <div className="text-slate-400 text-sm">End of Catalog</div>
+                    <div className="text-slate-400 text-xs sm:text-sm">End of Catalog</div>
                 )}
             </div>
         </section>
