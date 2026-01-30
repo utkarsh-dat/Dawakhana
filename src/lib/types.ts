@@ -20,7 +20,7 @@ export interface Order {
     subtotal: number;
     deliveryFee: number;
     total: number;
-    status: "Pending" | "Processing" | "In Transit" | "Delivered";
+    status: "Pending" | "Processing" | "In Transit" | "Delivered" | "Pending Verification" | "Order Placed" | "Confirmed" | "Shipped" | "Cancelled";
     address: DeliveryAddress;
     createdAt: Timestamp;
     paymentMethod: "Card" | "Google Pay" | "COD";

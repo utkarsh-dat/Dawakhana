@@ -136,8 +136,8 @@ export default function AdminPage() {
         return orderDate >= todayStart;
     });
 
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-    const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
+    const totalRevenue = orders.reduce((sum, order) => order.status !== "Cancelled" ? sum + order.total : sum, 0);
+    const todayRevenue = todayOrders.reduce((sum, order) => order.status !== "Cancelled" ? sum + order.total : sum, 0);
     const pendingOrders = orders.filter((o) =>
         o.status === "Pending" || o.status === "Pending Verification" || o.status === "Order Placed"
     ).length;

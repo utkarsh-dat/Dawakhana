@@ -8,13 +8,14 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { Order } from "@/lib/types";
 
 const OrdersPage = () => {
     const { user } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+    const [cancellingId, setCancellingId] = useState<string | null>(null);
 
     useEffect(() => {
         if (!user) {
@@ -47,6 +48,22 @@ const OrdersPage = () => {
         return () => unsubscribe();
     }, [user]);
 
+    const handleCancelOrder = async (orderId: string) => {
+        if (!confirm("Are you sure you want to cancel this order?")) return;
+
+        setCancellingId(orderId);
+        try {
+            await updateDoc(doc(db, "orders", orderId), {
+                status: "Cancelled"
+            });
+        } catch (error) {
+            console.error("Error cancelling order:", error);
+            alert("Failed to cancel order. Please try again.");
+        } finally {
+            setCancellingId(null);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -55,7 +72,7 @@ const OrdersPage = () => {
         );
     }
 
-    const activeOrders = orders.filter(order => order.status !== "Delivered");
+    const activeOrders = orders.filter(order => order.status !== "Delivered" && order.status !== "Cancelled");
     // For now, let's just stick to the newest active order for the highlight, or the newest order if no active ones
     const highlightedOrder = activeOrders.length > 0 ? activeOrders[0] : orders[0];
 
@@ -92,7 +109,7 @@ const OrdersPage = () => {
                     ) : (
                         <>
                             {/* Highlighted Order (Most Recent) */}
-                            {highlightedOrder && (
+                            {highlightedOrder && highlightedOrder.status !== "Cancelled" && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -139,6 +156,22 @@ const OrdersPage = () => {
                                                 </div>
                                                 {/* More steps could be dynamic based on status */}
                                             </div>
+
+                                            {/* Cancel Button for Highlighted Order - only if pending */}
+                                            {['Pending', 'Pending Verification', 'Order Placed'].includes(highlightedOrder.status) && (
+                                                <div className="pt-4">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleCancelOrder(highlightedOrder.id);
+                                                        }}
+                                                        disabled={cancellingId === highlightedOrder.id}
+                                                        className="px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
+                                                    >
+                                                        {cancellingId === highlightedOrder.id ? "Cancelling..." : "Cancel Order"}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </motion.div>
@@ -147,13 +180,13 @@ const OrdersPage = () => {
                             {/* Orders List */}
                             <div className="space-y-4">
                                 <h3 className="text-xl font-bold px-2">Order History</h3>
-                                {orders.filter(o => o.id !== highlightedOrder?.id).map((order, index) => (
+                                {orders.filter(o => o.id !== highlightedOrder?.id || highlightedOrder?.status === 'Cancelled').map((order, index) => (
                                     <motion.div
                                         key={order.id}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: index * 0.1 }}
-                                        className="bg-white p-6 rounded-3xl border border-slate-100 premium-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-primary/20 transition-all cursor-pointer group"
+                                        className={`bg-white p-6 rounded-3xl border border-slate-100 premium-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-primary/20 transition-all cursor-pointer group ${order.status === 'Cancelled' ? 'opacity-70' : ''}`}
                                     >
                                         <div className="flex items-center gap-6">
                                             <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
@@ -169,10 +202,24 @@ const OrdersPage = () => {
 
                                         <div className="flex flex-col md:items-end gap-1">
                                             <div className="flex items-center gap-2">
-                                                <span className={`w-2 h-2 rounded-full ${order.status === 'Delivered' ? 'bg-green-500' : 'bg-primary animate-pulse'}`} />
+                                                <span className={`w-2 h-2 rounded-full ${order.status === 'Delivered' ? 'bg-green-500' : order.status === 'Cancelled' ? 'bg-red-500' : 'bg-primary animate-pulse'}`} />
                                                 <span className="font-bold text-sm">{order.status}</span>
                                             </div>
                                             <p className="text-lg font-bold">₹{order.total.toFixed(2)}</p>
+
+                                            {/* Cancel Button */}
+                                            {['Pending', 'Pending Verification', 'Order Placed'].includes(order.status) && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleCancelOrder(order.id);
+                                                    }}
+                                                    disabled={cancellingId === order.id}
+                                                    className="mt-2 text-xs text-red-500 hover:text-red-700 font-semibold hover:underline disabled:opacity-50"
+                                                >
+                                                    {cancellingId === order.id ? "Cancelling..." : "Cancel Order"}
+                                                </button>
+                                            )}
                                         </div>
 
                                         <div className="hidden md:block">

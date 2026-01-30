@@ -6,6 +6,7 @@ import { Plus, Star, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
 import { Medicine } from "@/lib/medicines";
 import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
 
 interface MedicineCardProps {
     medicine: Medicine;
@@ -13,6 +14,12 @@ interface MedicineCardProps {
 
 const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
     const { addToCart } = useCart();
+    const { showToast } = useToast();
+
+    const handleAddToCart = () => {
+        addToCart(medicine);
+        showToast(`Added ${medicine.name} to cart`, "success");
+    };
 
     return (
         <motion.div
@@ -59,17 +66,19 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
                     <div>
                         <span className="text-lg sm:text-2xl font-bold text-foreground">₹{medicine.price.toFixed(2)}</span>
                     </div>
-                    <button
+                    <motion.button
+                        layout
+                        whileTap={{ scale: 0.9 }}
                         disabled={!medicine.inStock}
-                        onClick={() => addToCart(medicine)}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all ${medicine.inStock
-                            ? "bg-slate-900 text-white hover:bg-primary premium-shadow active:scale-95"
+                        onClick={handleAddToCart}
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-colors shadow-sm ${medicine.inStock
+                            ? "bg-slate-900 text-white hover:bg-primary shadow-slate-200"
                             : "bg-slate-100 text-slate-400 cursor-not-allowed"
                             }`}
                     >
                         <Plus size={18} className="sm:hidden" />
                         <Plus size={20} className="hidden sm:block" />
-                    </button>
+                    </motion.button>
                 </div>
             </div>
         </motion.div>
