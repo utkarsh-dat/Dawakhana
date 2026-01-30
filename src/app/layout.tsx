@@ -71,6 +71,7 @@ export const metadata: Metadata = {
 
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import JsonLd from "@/components/JsonLd";
 
 export default function RootLayout({
   children,
@@ -85,6 +86,8 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             {children}
+            <JsonLd />
+            {/* Version 1.2: SEO Updated */}
           </CartProvider>
         </AuthProvider>
       </body>

@@ -2,13 +2,11 @@ import CartState from "@/components/CartState";
 import HeroSection from "@/components/HeroSection";
 import CatalogGrid from "@/components/CatalogGrid";
 import Footer from "@/components/Footer";
-import JsonLd from "@/components/JsonLd";
 import { ShieldCheck, Truck, Clock, Award } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      <JsonLd />
       <CartState />
 
       <main className="flex-grow">
