@@ -70,7 +70,7 @@ const HeroSection = () => {
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-lg"
                     >
-                        Get authentic medicines, wellness products, and healthcare essentials delivered to your door in minutes.
+                        Get authentic medicines, wellness products, and healthcare essentials delivered to your door.
                     </motion.p>
 
                     {/* Search Bar with Suggestions - Responsive */}
