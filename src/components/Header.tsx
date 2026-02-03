@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, User, Search, Menu, X, LogOut, Settings, Home, Package, ShoppingBag } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, LogOut, Settings, Home, Package, ShoppingBag, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -38,6 +38,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
         { href: "/", label: "Home", icon: Home },
         { href: "/catalog", label: "Catalog", icon: Package },
         { href: "/orders", label: "My Orders", icon: ShoppingBag },
+        { href: "/upload-prescription", label: "Upload Prescription", icon: Upload }, // NEW LINK
     ];
 
     return (
@@ -65,6 +66,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                         <Link href="/" className="text-foreground transition-colors">Home</Link>
                         <Link href="/catalog" className="text-muted-foreground hover:text-primary transition-colors">Catalog</Link>
                         <Link href="/orders" className="text-muted-foreground hover:text-primary transition-colors">My Orders</Link>
+                        <Link href="/upload-prescription" className="text-muted-foreground hover:text-primary transition-colors">Upload Prescription</Link>
                         {isAdmin && (
                             <Link href="/admin" className="text-primary font-semibold hover:text-primary/80 transition-colors">
                                 Admin

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, Timestamp } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, Timestamp, limit } from "firebase/firestore";
 import Link from "next/link";
 import {
     Package,
@@ -20,7 +20,9 @@ import {
     Users,
     TrendingUp,
     Eye,
-    X
+    X,
+    Pill,
+    AlertTriangle
 } from "lucide-react";
 
 // Admin emails - only these users can access this page
@@ -56,6 +58,13 @@ interface Order {
     createdAt: Timestamp;
 }
 
+interface MissingMedicine {
+    id: string;
+    name: string;
+    count: number;
+    lastRequested: Timestamp;
+}
+
 const statusOptions = [
     { value: "Pending", label: "Pending", color: "bg-yellow-100 text-yellow-800", icon: Clock },
     { value: "Pending Verification", label: "Pending Verification", color: "bg-orange-100 text-orange-800", icon: AlertCircle },
@@ -74,6 +83,7 @@ export default function AdminPage() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+    const [missingMedicines, setMissingMedicines] = useState<MissingMedicine[]>([]);
 
     // No redirect needed - we show proper UI for each state
 
@@ -93,6 +103,26 @@ export default function AdminPage() {
             })) as Order[];
             setOrders(ordersData);
             setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
+
+    // Fetch missing medicines
+    useEffect(() => {
+        if (!user || !ADMIN_EMAILS.includes(user.email || "")) return;
+
+        // Simple query without orderBy to avoid index requirement
+        const missingQuery = collection(db, "missingMedicineRequests");
+
+        const unsubscribe = onSnapshot(missingQuery, (snapshot) => {
+            const data = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as MissingMedicine[];
+            // Sort client-side by count (highest first)
+            data.sort((a, b) => (b.count || 0) - (a.count || 0));
+            setMissingMedicines(data.slice(0, 20)); // Limit to 20
         });
 
         return () => unsubscribe();
@@ -295,6 +325,48 @@ export default function AdminPage() {
                         <h3 className="text-3xl font-bold">₹{todayRevenue.toFixed(0)}</h3>
                         <p className="text-sm text-slate-500">Today&apos;s Revenue ({todayOrders.length} orders)</p>
                     </div>
+                </div>
+
+                {/* Missing Medicines Section */}
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold flex items-center gap-2">
+                            <AlertTriangle className="text-orange-500" size={20} />
+                            Missing Medicines (User Requests)
+                        </h2>
+                        <span className="text-sm text-slate-500">
+                            Medicines users searched for but aren&apos;t in stock
+                        </span>
+                    </div>
+                    {missingMedicines.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {missingMedicines.map((medicine) => (
+                                <div
+                                    key={medicine.id}
+                                    className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-4"
+                                >
+                                    <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <Pill className="text-orange-600" size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold text-slate-800">{medicine.name}</h4>
+                                        <p className="text-sm text-slate-500">
+                                            Requested <span className="font-bold text-orange-600">{medicine.count}x</span>
+                                            {medicine.lastRequested && (
+                                                <> • Last: {medicine.lastRequested.toDate?.().toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</>
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-slate-400">
+                            <Pill size={32} className="mx-auto mb-2 opacity-50" />
+                            <p>No missing medicine requests yet.</p>
+                            <p className="text-sm">When users upload prescriptions with medicines not in stock, they&apos;ll appear here.</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Filters */}

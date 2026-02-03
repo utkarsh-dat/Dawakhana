@@ -61,9 +61,9 @@ export default function Home() {
                 Our expert pharmacists will review your prescription and prepare your order within minutes.
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
-                <button className="px-8 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20">
+                <a href="/upload-prescription" className="px-8 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20">
                   Upload Now
-                </button>
+                </a>
                 <button className="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition-colors backdrop-blur-md">
                   How it Works
                 </button>
