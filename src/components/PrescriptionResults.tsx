@@ -13,61 +13,49 @@ interface PrescriptionResultsProps {
     onReset: () => void;
 }
 
-// Check if a name looks like a real medicine (pharmaceutical patterns)
+// Check if a name looks like a real medicine (simplified - more lenient)
 function looksLikeMedicine(name: string): boolean {
     const cleaned = name.toLowerCase().trim();
 
-    // Too short or too long to be a medicine
-    if (cleaned.length < 3 || cleaned.length > 40) return false;
+    // Too short or too long
+    if (cleaned.length < 3 || cleaned.length > 50) return false;
 
-    // Common pharmaceutical suffixes (indicates real medicine)
-    const pharmaPatterns = [
-        /\d+\s*(mg|ml|mcg|g|iu|%)/i,  // Has dosage
-        /(tablet|tab|cap|capsule|syrup|inj|cream|gel|oint|drop|suspension)/i,
-        /(forte|plus|sr|xr|xl|er|cr|ds|od|bd)/i,  // Common medicine suffixes
-        /(cin|zole|pam|ine|ide|ate|ol|il|am|one|ase|in|en|an|um)$/i, // Drug name endings
-    ];
-
-    // Check if matches pharmaceutical patterns
-    for (const pattern of pharmaPatterns) {
-        if (pattern.test(cleaned)) return true;
-    }
-
-    // Common Indian medicine brand prefixes/patterns
-    const knownPatterns = /^(pan|dolo|crocin|azithro|amox|cipr|metro|omepra|paracet|ibupro|cetriz|montel|atorva|metfor|aspir|vitamin|calcium|iron|zinc|folic|b12|d3|multiv)/i;
-    if (knownPatterns.test(cleaned)) return true;
-
-    // Must have at least one letter and look like a proper word
-    if (!/^[a-zA-Z][a-zA-Z0-9\s\-\.]+$/.test(cleaned)) return false;
+    // Must contain at least one letter
+    if (!/[a-zA-Z]/.test(cleaned)) return false;
 
     // Reject obvious non-medicine words
     const nonMedicinePatterns = [
-        /^(doctor|patient|name|date|address|hospital|clinic|pharmacy|rx|sig|diagnosis|test|report)/i,
+        /^(doctor|patient|name|date|address|hospital|clinic|pharmacy|rx|sig)/i,
         /^(mr|mrs|ms|dr|prof|sir|madam)/i,
         /^(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i,
-        /^(january|february|march|april|may|june|july|august|september|october|november|december)/i,
+        /^(january|february|march|april|may|june|july|august)/i,
+        /^(the|and|or|for|with|take|use|apply|give)$/i,
     ];
 
     for (const pattern of nonMedicinePatterns) {
         if (pattern.test(cleaned)) return false;
     }
 
-    // If it's a clean word of reasonable length, might be a medicine
-    return cleaned.length >= 4;
+    // Accept most other entries
+    return true;
 }
 
-// Log missing medicine to Firebase for admin tracking (only if it looks like a real medicine)
+// Log missing medicine to Firebase for admin tracking
 async function logMissingMedicine(medicineName: string) {
-    if (!db) return;
+    console.log("logMissingMedicine called with:", medicineName);
 
-    // Only log if it looks like a real medicine name
+    if (!db) {
+        console.log("Firebase db not available");
+        return;
+    }
+
+    // Check if it looks like a medicine
     if (!looksLikeMedicine(medicineName)) {
-        console.log(`Skipping "${medicineName}" - doesn't look like a real medicine`);
+        console.log(`Skipping "${medicineName}" - doesn't look like a medicine`);
         return;
     }
 
     try {
-        // Use medicine name as document ID (normalized)
         const docId = medicineName.toLowerCase().replace(/[^a-z0-9]/g, "_").substring(0, 100);
         const docRef = doc(db, "missingMedicineRequests", docId);
 
@@ -76,6 +64,8 @@ async function logMissingMedicine(medicineName: string) {
             count: increment(1),
             lastRequested: serverTimestamp(),
         }, { merge: true });
+
+        console.log(`✅ Logged missing medicine: "${medicineName}"`);
     } catch (error) {
         console.error("Failed to log missing medicine:", error);
     }
@@ -84,6 +74,7 @@ async function logMissingMedicine(medicineName: string) {
 export default function PrescriptionResults({ recognizedNames, onReset }: PrescriptionResultsProps) {
     const { addToCart } = useCart();
     const [selectedItems, setSelectedItems] = useState<Medicine[]>([]);
+    const [requestedItems, setRequestedItems] = useState<string[]>([]);  // For Not Found medicines
     const [editedNames, setEditedNames] = useState<string[]>(recognizedNames);
     const [isEditing, setIsEditing] = useState(false);
     const [newMedicine, setNewMedicine] = useState("");
@@ -125,17 +116,28 @@ export default function PrescriptionResults({ recognizedNames, onReset }: Prescr
         }
     };
 
+    // Toggle selection for Not Found medicines
+    const toggleRequest = (medicineName: string) => {
+        if (requestedItems.includes(medicineName)) {
+            setRequestedItems(prev => prev.filter(n => n !== medicineName));
+        } else {
+            setRequestedItems(prev => [...prev, medicineName]);
+        }
+    };
+
     const handleAddAllToCart = async () => {
         // Add selected items to cart
         selectedItems.forEach(item => addToCart(item));
 
-        // Log missing medicines to Firebase for admin
-        const notFoundMedicines = matches.filter(m => !m.found);
-        for (const item of notFoundMedicines) {
-            await logMissingMedicine(item.searchedName);
+        // Log only SELECTED missing medicines to Firebase for admin
+        for (const medicineName of requestedItems) {
+            await logMissingMedicine(medicineName);
         }
 
-        alert(`Added ${selectedItems.length} items to cart!`);
+        const message = [];
+        if (selectedItems.length > 0) message.push(`Added ${selectedItems.length} items to cart`);
+        if (requestedItems.length > 0) message.push(`Requested ${requestedItems.length} medicines`);
+        alert(message.join('. ') || 'Done!');
         onReset();
     };
 
@@ -268,6 +270,30 @@ export default function PrescriptionResults({ recognizedNames, onReset }: Prescr
                                 </div>
                             </div>
                         )}
+
+                        {/* Not Found - Request option */}
+                        {!item.found && !isEditing && (
+                            <div className="mt-3 bg-orange-50 border border-orange-200 p-3 rounded-lg">
+                                <div className="flex gap-3 items-center">
+                                    <div className="w-12 h-12 bg-orange-100 rounded-md flex items-center justify-center">
+                                        <AlertCircle className="text-orange-500" size={24} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold text-sm text-orange-800">{item.searchedName}</h4>
+                                        <p className="text-orange-600 text-xs">Not in stock - Request this medicine</p>
+                                    </div>
+                                    <button
+                                        onClick={() => toggleRequest(item.searchedName)}
+                                        className={`h-8 w-8 flex items-center justify-center rounded-full transition-colors ${requestedItems.includes(item.searchedName)
+                                            ? "bg-orange-500 text-white"
+                                            : "bg-orange-100 text-orange-400 hover:bg-orange-200"
+                                            }`}
+                                    >
+                                        <Plus size={16} className={requestedItems.includes(item.searchedName) ? "rotate-45" : ""} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </motion.div>
                 ))}
             </div>
@@ -275,19 +301,27 @@ export default function PrescriptionResults({ recognizedNames, onReset }: Prescr
             {/* Summary / Actions */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 flex items-center justify-between sm:static sm:bg-transparent sm:border-0 sm:block sm:mt-8">
                 <div className="hidden sm:block text-muted-foreground mb-4">
-                    {selectedItems.length > 0
-                        ? `${selectedItems.length} items selected`
-                        : "Select items to add to cart"
+                    {selectedItems.length > 0 && requestedItems.length > 0
+                        ? `${selectedItems.length} to cart, ${requestedItems.length} to request`
+                        : selectedItems.length > 0
+                            ? `${selectedItems.length} items selected`
+                            : requestedItems.length > 0
+                                ? `${requestedItems.length} medicine(s) selected to request`
+                                : "Select items to add to cart or request"
                     }
                 </div>
 
                 <button
                     onClick={handleAddAllToCart}
-                    disabled={selectedItems.length === 0}
+                    disabled={selectedItems.length === 0 && requestedItems.length === 0}
                     className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/25 disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center gap-2"
                 >
                     <ShoppingCart size={20} />
-                    Add Selected to Cart
+                    {requestedItems.length > 0 && selectedItems.length === 0
+                        ? "Request Selected Medicines"
+                        : requestedItems.length > 0
+                            ? "Add to Cart & Request"
+                            : "Add Selected to Cart"}
                 </button>
             </div>
         </div>

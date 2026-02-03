@@ -325,49 +325,21 @@ export default function AdminPage() {
                         <h3 className="text-3xl font-bold">₹{todayRevenue.toFixed(0)}</h3>
                         <p className="text-sm text-slate-500">Today&apos;s Revenue ({todayOrders.length} orders)</p>
                     </div>
+
+                    {/* Requested Medicines Card */}
+                    <a href="/admin/requested-medicines" className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 shadow-sm border border-orange-200 hover:shadow-md transition-shadow cursor-pointer block">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-orange-200 rounded-lg">
+                                <Pill className="text-orange-600" size={24} />
+                            </div>
+                            <span className="text-xs text-orange-600 bg-orange-200 px-2 py-1 rounded font-medium">View All →</span>
+                        </div>
+                        <h3 className="text-3xl font-bold text-orange-700">{missingMedicines.length}</h3>
+                        <p className="text-sm text-orange-600">Requested Medicines</p>
+                    </a>
                 </div>
 
-                {/* Missing Medicines Section */}
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-bold flex items-center gap-2">
-                            <AlertTriangle className="text-orange-500" size={20} />
-                            Missing Medicines (User Requests)
-                        </h2>
-                        <span className="text-sm text-slate-500">
-                            Medicines users searched for but aren&apos;t in stock
-                        </span>
-                    </div>
-                    {missingMedicines.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {missingMedicines.map((medicine) => (
-                                <div
-                                    key={medicine.id}
-                                    className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center gap-4"
-                                >
-                                    <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                                        <Pill className="text-orange-600" size={20} />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h4 className="font-semibold text-slate-800">{medicine.name}</h4>
-                                        <p className="text-sm text-slate-500">
-                                            Requested <span className="font-bold text-orange-600">{medicine.count}x</span>
-                                            {medicine.lastRequested && (
-                                                <> • Last: {medicine.lastRequested.toDate?.().toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</>
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-8 text-slate-400">
-                            <Pill size={32} className="mx-auto mb-2 opacity-50" />
-                            <p>No missing medicine requests yet.</p>
-                            <p className="text-sm">When users upload prescriptions with medicines not in stock, they&apos;ll appear here.</p>
-                        </div>
-                    )}
-                </div>
+
 
                 {/* Filters */}
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 mb-6">
