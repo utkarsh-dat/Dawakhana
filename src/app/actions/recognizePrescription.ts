@@ -133,7 +133,7 @@ If the input is completely irrelevant, return: {"medicines": []}
                 }
             }
 
-            return { error: "No vision API available. Please configure DEEPSEEK_API_KEY or GEMINI_API_KEY." };
+            return { error: "Configuration Error: Vision API keys not found. If you just added them, please REDEPLOY your site for changes to take effect." };
 
         } else {
             // Text input: Use Groq with lenient prompt (natural language support)
