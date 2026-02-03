@@ -52,9 +52,9 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
 
         try {
             const result = await recognizePrescription(formData);
-            if (result.error) {
+            if ("error" in result) {
                 setError(result.error);
-            } else if (result.medicines) {
+            } else {
                 onResults(result.medicines);
             }
         } catch (err) {
