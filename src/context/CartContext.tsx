@@ -1,10 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Medicine } from "@/lib/medicines";
 import { useAuth } from "./AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { User } from "firebase/auth";
 
 interface CartItem extends Medicine {
     quantity: number;
@@ -26,6 +27,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { user } = useAuth();
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isInitialized, setIsInitialized] = useState(false);
+    const prevUserRef = useRef<User | null>(null);
 
     // 1. Initial Load (Local Storage) - Only once on mount
     useEffect(() => {
@@ -35,6 +37,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         setIsInitialized(true);
     }, []);
+
+    // 2. Handle Logout (Clear Cart)
+    useEffect(() => {
+        if (isInitialized && prevUserRef.current && !user) {
+            setCart([]);
+            localStorage.removeItem("cart");
+        }
+        prevUserRef.current = user;
+    }, [user, isInitialized]);
 
     // 2. Sync with Cloud on Login
     useEffect(() => {
