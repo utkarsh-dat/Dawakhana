@@ -9,6 +9,13 @@ const geminiApiKey = process.env.GEMINI_API_KEY;
 const groqApiKey = process.env.GROQ_API_KEY;
 const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
 
+console.log("API Keys Check:", {
+    hasGemini: !!geminiApiKey,
+    hasGroq: !!groqApiKey,
+    hasDeepseek: !!deepseekApiKey,
+    geminiKeyStart: geminiApiKey ? geminiApiKey.substring(0, 4) : 'none'
+});
+
 const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
 const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 
@@ -130,25 +137,34 @@ If the input is completely irrelevant, return: {"medicines": []}
 
         } else {
             // Text input: Use Groq with lenient prompt (natural language support)
-            if (!groq) {
-                return { error: "Groq API key not configured. Please add GROQ_API_KEY to .env.local" };
+            // Text input: Use Groq with lenient prompt, fallback to Gemini
+            if (groq) {
+                const completion = await groq.chat.completions.create({
+                    messages: [
+                        {
+                            role: "user",
+                            content: textPrompt + "\n\nUser Input:\n" + textInput
+                        }
+                    ],
+                    model: "llama-3.3-70b-versatile",
+                    temperature: 0.3,
+                    response_format: { type: "json_object" },
+                });
+
+                const content = completion.choices[0]?.message?.content;
+                if (!content) return { medicines: [] };
+                return parseResponse(content);
             }
 
-            const completion = await groq.chat.completions.create({
-                messages: [
-                    {
-                        role: "user",
-                        content: textPrompt + "\n\nUser Input:\n" + textInput
-                    }
-                ],
-                model: "llama-3.3-70b-versatile",
-                temperature: 0.3,  // Slightly creative for suggestions
-                response_format: { type: "json_object" },
-            });
+            // Fallback to Gemini for text
+            if (genAI) {
+                const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+                const result = await model.generateContent(textPrompt + "\n\nUser Input:\n" + textInput);
+                const responseText = result.response.text();
+                return parseResponse(responseText);
+            }
 
-            const content = completion.choices[0]?.message?.content;
-            if (!content) return { medicines: [] };
-            return parseResponse(content);
+            return { error: "No AI API configured. Please add GROQ_API_KEY or GEMINI_API_KEY to .env.local" };
         }
 
     } catch (error: any) {

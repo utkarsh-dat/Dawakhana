@@ -65,19 +65,19 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto space-y-8">
+        <div className="w-full max-w-2xl mx-auto space-y-6 sm:space-y-8">
             {/* Tabs */}
             <div className="flex p-1 bg-muted rounded-xl">
                 <button
                     onClick={() => setActiveTab("image")}
-                    className={`flex-1 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === "image" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    className={`flex-1 py-2.5 sm:py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === "image" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <Camera size={18} /> Upload Image
                 </button>
                 <button
                     onClick={() => setActiveTab("text")}
-                    className={`flex-1 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === "text" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    className={`flex-1 py-2.5 sm:py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === "text" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <FileText size={18} /> Type Prescription
@@ -85,7 +85,7 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
             </div>
 
             {/* Content */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 sm:p-10 text-center">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-10 text-center">
                 {activeTab === "image" ? (
                     <div className="space-y-6">
                         <input
@@ -130,7 +130,7 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
                             value={textInput}
                             onChange={(e) => setTextInput(e.target.value)}
                             placeholder="E.g. I need 2 strips of Paracetamol and Antibiotics..."
-                            className="w-full h-40 p-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none resize-none text-lg"
+                            className="w-full h-32 sm:h-40 p-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none resize-none text-base sm:text-lg"
                         />
                     </div>
                 )}
@@ -148,7 +148,7 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
                     <button
                         onClick={handleAnalyze}
                         disabled={isAnalyzing}
-                        className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                     >
                         {isAnalyzing ? (
                             <>
