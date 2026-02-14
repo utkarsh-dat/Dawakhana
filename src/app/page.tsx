@@ -1,3 +1,4 @@
+import Link from "next/link";
 import CartState from "@/components/CartState";
 import HeroSection from "@/components/HeroSection";
 import CatalogGrid from "@/components/CatalogGrid";
@@ -42,6 +43,15 @@ export default function Home() {
                   <h4 className="font-bold">Top Rated</h4>
                   <p className="text-xs text-muted-foreground">500k+ Reviews</p>
                 </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600">
+                    <Clock size={28} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold">Fast Service</h4>
+                    <p className="text-xs text-muted-foreground">Express Delivery</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -61,9 +71,9 @@ export default function Home() {
                 Our expert pharmacists will review your prescription and prepare your order within minutes.
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
-                <a href="/upload-prescription" className="px-8 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20">
+                <Link href="/upload-prescription" className="px-8 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20">
                   Upload Now
-                </a>
+                </Link>
                 <button className="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition-colors backdrop-blur-md">
                   How it Works
                 </button>

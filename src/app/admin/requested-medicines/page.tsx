@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { collection, onSnapshot, doc, deleteDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -64,7 +65,7 @@ export default function RequestedMedicinesPage() {
                 <div className="text-center">
                     <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
                     <p className="text-slate-500">You need admin access to view this page.</p>
-                    <a href="/" className="text-primary mt-4 inline-block hover:underline">← Back to Home</a>
+                    <Link href="/" className="text-primary mt-4 inline-block hover:underline">← Back to Home</Link>
                 </div>
             </div>
         );
@@ -77,9 +78,9 @@ export default function RequestedMedicinesPage() {
             {/* Header */}
             <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
                 <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
-                    <a href="/admin" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                    <Link href="/admin" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
                         <ArrowLeft size={24} />
-                    </a>
+                    </Link>
                     <div>
                         <h1 className="text-xl font-bold">Requested Medicines</h1>
                         <p className="text-sm text-slate-500">Medicines users searched for but aren&apos;t in stock</p>

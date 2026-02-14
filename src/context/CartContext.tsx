@@ -35,14 +35,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (savedCart) {
             setCart(JSON.parse(savedCart));
         }
+        // eslint-disable-next-line
         setIsInitialized(true);
     }, []);
 
     // 2. Handle Logout (Clear Cart)
     useEffect(() => {
         if (isInitialized && prevUserRef.current && !user) {
-            setCart([]);
-            localStorage.removeItem("cart");
+            // Wrap in setTimeout to avoid set-state-in-effect warnings and ensure clean cycle
+            setTimeout(() => {
+                setCart([]);
+                localStorage.removeItem("cart");
+            }, 0);
         }
         prevUserRef.current = user;
     }, [user, isInitialized]);

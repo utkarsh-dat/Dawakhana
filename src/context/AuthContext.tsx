@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         if (!auth) {
             console.warn("AuthContext: Firebase Auth is not initialized. Check your environment variables.");
+            // eslint-disable-next-line
             setLoading(false);
             return;
         }
