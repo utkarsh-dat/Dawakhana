@@ -12,11 +12,9 @@ interface HeaderProps {
     onCartClick?: () => void;
 }
 
-const ADMIN_EMAILS = ["vickynishad110@gmail.com", "dawakhana011@gmail.com"];
-
 const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
     const { totalItems } = useCart();
-    const { user, logout, loginWithGoogle } = useAuth();
+    const { user, logout, loginWithGoogle, isAdmin } = useAuth();
     const router = useRouter();
     const [showSearch, setShowSearch] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -31,8 +29,6 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
             setSearchQuery("");
         }
     };
-
-    const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email);
 
     const navLinks = [
         { href: "/", label: "Home", icon: Home },
@@ -164,7 +160,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                                 </div>
                             ) : (
                                 <button
-                                    onClick={() => loginWithGoogle()}
+                                    onClick={() => loginWithGoogle().catch((err) => console.log("Google login cancelled or closed", err))}
                                     className="px-3 sm:px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
                                 >
                                     Login
@@ -277,7 +273,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                                 ) : (
                                     <button
                                         onClick={() => {
-                                            loginWithGoogle();
+                                            loginWithGoogle().catch((err) => console.log("Google login cancelled or closed", err));
                                             setShowMobileMenu(false);
                                         }}
                                         className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors"

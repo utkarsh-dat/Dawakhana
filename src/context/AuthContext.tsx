@@ -74,8 +74,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 alert("Login failed: Google/Email provider is not enabled in Firebase Console.");
             } else {
                 alert(`Login failed: ${err.message || "Unknown error"}`);
+                throw error;
             }
-            throw error;
         }
     };
 

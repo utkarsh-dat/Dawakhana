@@ -25,8 +25,7 @@ import {
     AlertTriangle
 } from "lucide-react";
 
-// Admin emails - only these users can access this page
-const ADMIN_EMAILS = ["vickynishad110@gmail.com", "dawakhana011@gmail.com"];
+
 
 interface OrderItem {
     id: string;
@@ -76,7 +75,7 @@ const statusOptions = [
 ];
 
 export default function AdminPage() {
-    const { user, loading: authLoading, loginWithGoogle, logout } = useAuth();
+    const { user, isAdmin, loading: authLoading, loginWithGoogle, logout } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
@@ -89,7 +88,7 @@ export default function AdminPage() {
 
     // Fetch orders in real-time
     useEffect(() => {
-        if (!user || !ADMIN_EMAILS.includes(user.email || "")) return;
+        if (!user || !isAdmin) return;
 
         const ordersQuery = query(
             collection(db, "orders"),
@@ -110,7 +109,7 @@ export default function AdminPage() {
 
     // Fetch missing medicines
     useEffect(() => {
-        if (!user || !ADMIN_EMAILS.includes(user.email || "")) return;
+        if (!user || !isAdmin) return;
 
         // Simple query without orderBy to avoid index requirement
         const missingQuery = collection(db, "missingMedicineRequests");
@@ -203,7 +202,7 @@ export default function AdminPage() {
 
                     <div className="space-y-4">
                         <button
-                            onClick={() => loginWithGoogle()}
+                            onClick={() => loginWithGoogle().catch((err) => console.log("Google login cancelled or closed", err))}
                             className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-primary hover:bg-primary/5 text-slate-700 py-3 px-4 rounded-xl font-semibold transition-all"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -230,7 +229,7 @@ export default function AdminPage() {
     }
 
     // Logged in but not admin - show access denied
-    if (!ADMIN_EMAILS.includes(user.email || "")) {
+    if (!isAdmin) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
                 <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4 text-center">
