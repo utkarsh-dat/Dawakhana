@@ -160,7 +160,8 @@ const ChatBot = () => {
         try {
             const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
             
-            if (geminiKey) {
+            // Check if key is present and starts with standard Google AI Studio key prefix 'AIzaSy'
+            if (geminiKey && geminiKey.startsWith("AIzaSy")) {
                 // Initialize Gemini Client
                 const genAI = new GoogleGenerativeAI(geminiKey);
                 const model = genAI.getGenerativeModel({
@@ -195,7 +196,7 @@ const ChatBot = () => {
                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 }]);
             } else {
-                // If API Key is not set, run robust local pattern matcher
+                // If API Key is not set or invalid format, run robust local pattern matcher
                 setTimeout(() => {
                     setMessages((prev) => [...prev, {
                         text: getLocalResponse(userQuery),
@@ -205,7 +206,7 @@ const ChatBot = () => {
                 }, 800);
             }
         } catch (error) {
-            console.error("Gemini AI API Error:", error);
+            console.warn("Gemini AI API Error:", error);
             // Fallback to local response on API error
             setMessages((prev) => [...prev, {
                 text: getLocalResponse(userQuery),
