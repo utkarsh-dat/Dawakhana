@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 
-const ADMIN_EMAILS = ["vickynishad110@gmail.com", "utkarshparmar2367@gmail.com"];
+const ADMIN_EMAILS = ["vickynishad011@gmail.com", "utkarshparmar2367@gmail.com"];
 
 interface AuthContextType {
     user: User | null;
