@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import ChatBot from "./ChatBot";
 
 const Footer = () => {
     return (
@@ -52,6 +53,9 @@ const Footer = () => {
                     <div className="flex items-center gap-3 text-sm justify-center sm:justify-start">
                         <MapPin size={18} className="text-primary flex-shrink-0" />
                         <span>Azad Nagar, Pakri Ka Pul</span>
+                    </div>
+                    <div className="pt-4 flex justify-center sm:justify-start">
+                        <ChatBot />
                     </div>
                 </div>
             </div>
