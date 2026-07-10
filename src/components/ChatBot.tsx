@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Loader2 } from 'lucide-react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface Message {
     text: string;
@@ -14,7 +15,7 @@ const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
-            text: "Hello! Welcome to DawaKhana. How can I help you today? (नमस्ते! दवाखाना में आपका स्वागत है। मैं आपकी क्या मदद कर सकता हूँ?)",
+            text: "Hello! Welcome to DawaKhana. How can I help you today? (नमस्ते! दवाखाना में स्वागत है। आज मैं आपकी क्या सहायता कर सकता हूँ?)",
             sender: 'bot',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
@@ -28,41 +29,91 @@ const ChatBot = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isTyping]);
 
-    const getBotResponse = (query: string): string => {
+    // Local fallback conversational matching logic (extremely robust)
+    const getLocalResponse = (query: string): string => {
         const cleanQuery = query.toLowerCase().trim().replace(/[?.,!]/g, "");
-        
-        // 1. GREETINGS
-        if (["hello", "hi", "hey", "hola", "namaste", "नमस्ते", "हेलो", "helo", "hlo"].some(word => cleanQuery === word || cleanQuery.startsWith(word + " "))) {
-            const replies = [
-                "Hello there! 😊 Hope you are doing wonderful today. How can I help you? (नमस्ते! आशा है आपका दिन अच्छा जा रहा होगा। मैं आपकी क्या मदद कर सकता हूँ?)",
-                "Hi! It's great to connect with you. How is your day going so far? (हाय! आपसे बात करके अच्छा लगा। आपका दिन कैसा चल रहा है?)",
-                "Hello! DawaKhana assistant here. What can I do for you today? (नमस्ते! दवाखाना सहायक यहाँ है। मैं आज आपके लिए क्या कर सकता हूँ?)"
-            ];
-            return replies[Math.floor(Math.random() * replies.length)];
-        }
 
-        // 2. HOW ARE YOU
-        if (cleanQuery.includes("how are you") || cleanQuery.includes("kaise ho") || cleanQuery.includes("aap kaise ho") || cleanQuery.includes("hal chal") || cleanQuery.includes("हाल चाल") || cleanQuery.includes("कैसे हो") || cleanQuery.includes("कैसी हो")) {
+        // 1. HOW ARE YOU / WELL-BEING (ap kaise hai, kaise ho, how are you, kaisa chal raha, etc.)
+        if (
+            cleanQuery.includes("kaise") || 
+            cleanQuery.includes("kaisa") || 
+            cleanQuery.includes("kaisi") || 
+            cleanQuery.includes("how are you") || 
+            cleanQuery.includes("how r u") || 
+            cleanQuery.includes("hal chal") || 
+            cleanQuery.includes("हाल") ||
+            cleanQuery.includes("कैसे") ||
+            cleanQuery.includes("कैसा")
+        ) {
             return "I am doing fantastic, running smoothly and ready to help! 🚀 Thank you so much for asking. How are you doing? How is your health today? (मैं बिल्कुल ठीक हूँ, पूछने के लिए बहुत धन्यवाद। आप कैसे हैं? आपकी तबीयत कैसी है?)";
         }
 
-        // 3. EATING / FOOD
-        if (cleanQuery.includes("khana khaya") || cleanQuery.includes("did you eat") || cleanQuery.includes("eat food") || cleanQuery.includes("खाना खाया") || cleanQuery.includes("खाना खाए") || cleanQuery.includes("lunch") || cleanQuery.includes("dinner") || cleanQuery.includes("food")) {
+        // 2. EATING / FOOD (khana khaya, did you eat, eat food, etc.)
+        if (
+            cleanQuery.includes("khana") || 
+            cleanQuery.includes("khaya") || 
+            cleanQuery.includes("khaye") || 
+            cleanQuery.includes("eat") || 
+            cleanQuery.includes("food") || 
+            cleanQuery.includes("lunch") || 
+            cleanQuery.includes("dinner") ||
+            cleanQuery.includes("खाना") ||
+            cleanQuery.includes("खाया")
+        ) {
             return "Haha, that's sweet of you to ask! 🍕 I'm an AI, so I don't eat food. I only consume electricity and data. But what about you? Did you eat your food today? What did you have? (हाहा, पूछने के लिए धन्यवाद! मैं एक एआई हूँ, इसलिए खाना नहीं खा सकता। क्या आपने खाना खाया? आज आपने क्या खाया?)";
         }
 
-        // 4. WHO ARE YOU / NAME
-        if (cleanQuery.includes("who are you") || cleanQuery.includes("what is your name") || cleanQuery.includes("naam kya hai") || cleanQuery.includes("tum kaun ho") || cleanQuery.includes("नाम") || cleanQuery.includes("कौन हो")) {
+        // 3. IDENTITY / WHO ARE YOU (who are you, what is your name, kaun ho, naam kya hai, etc.)
+        if (
+            cleanQuery.includes("who") || 
+            cleanQuery.includes("name") || 
+            cleanQuery.includes("naam") || 
+            cleanQuery.includes("kaun") ||
+            cleanQuery.includes("identity") ||
+            cleanQuery.includes("नाम") ||
+            cleanQuery.includes("कौन")
+        ) {
             return "I am your friendly DawaKhana Virtual Assistant! 🤖 I can help you find medicines, give general health info, and guide you with orders. (मैं आपका दवाखाना सहायक हूँ! मैं आपको दवाएं ढूंढने और ऑर्डर करने में मदद कर सकता हूँ।)";
         }
 
+        // 4. GREETINGS (hello, hi, hlo, helo, namaste, etc.)
+        if (
+            cleanQuery === "hi" || 
+            cleanQuery === "hello" || 
+            cleanQuery === "hey" || 
+            cleanQuery === "hlo" || 
+            cleanQuery === "helo" || 
+            cleanQuery === "namaste" || 
+            cleanQuery === "नमस्ते" || 
+            cleanQuery === "हेलो" ||
+            cleanQuery.startsWith("hi ") ||
+            cleanQuery.startsWith("hello ") ||
+            cleanQuery.startsWith("hlo ") ||
+            cleanQuery.startsWith("helo ") ||
+            cleanQuery.startsWith("hey ")
+        ) {
+            return "Hello there! 😊 Hope you are doing wonderful today. How can I help you? (नमस्ते! आशा है आपका दिन अच्छा जा रहा होगा। मैं आपकी क्या मदद कर सकता हूँ?)";
+        }
+
         // 5. THANK YOU
-        if (cleanQuery.includes("thank you") || cleanQuery.includes("thanks") || cleanQuery.includes("dhanyawad") || cleanQuery.includes("shukriya") || cleanQuery.includes("धन्यवाद") || cleanQuery.includes("शुक्रिया")) {
+        if (
+            cleanQuery.includes("thank") || 
+            cleanQuery.includes("thanks") || 
+            cleanQuery.includes("dhanyawad") || 
+            cleanQuery.includes("shukriya") || 
+            cleanQuery.includes("धन्यवाद") || 
+            cleanQuery.includes("शुक्रिया")
+        ) {
             return "You're very welcome! ❤️ Helping you makes me happy. Is there anything else you'd like to ask? (आपका स्वागत है! आपकी मदद करके मुझे खुशी हुई। क्या आप कुछ और पूछना चाहते हैं?)";
         }
 
         // 6. BYE
-        if (cleanQuery.includes("bye") || cleanQuery.includes("goodbye") || cleanQuery.includes("alvida") || cleanQuery.includes("बाय")) {
+        if (
+            cleanQuery.includes("bye") || 
+            cleanQuery.includes("goodbye") || 
+            cleanQuery.includes("alvida") || 
+            cleanQuery.includes("बाय")
+        ) {
             return "Goodbye! 👋 Take care of your health, eat well, and have a beautiful day ahead! (बाय-बाय! अपनी सेहत का ख्याल रखें और आपका दिन शुभ हो!)";
         }
 
@@ -83,17 +134,16 @@ const ChatBot = () => {
             return "Stomach discomfort or acidity (पेट दर्द/एसिडिटी) can often be settled with Digene or Pan-D. Try to eat light foods like khichdi and avoid spicy items. (पेट के दर्द/गैस के लिए हल्का खाना खाएं।)";
         }
 
-        // 8. FALLBACK (SMART MULTI-TURN AI FEEL)
-        const fallbacks = [
-            "I see! 📝 As a health assistant, I'm constantly learning. Could you explain a bit more so I can guide you better? (मैं समझ रहा हूँ। क्या आप थोड़ा विस्तार से बता सकते हैं ताकि मैं बेहतर मदद कर सकूँ?)",
-            "That's interesting! How is your day going? Do you have any queries about DawaKhana services or ordering medicines? (दिलचस्प बात है! क्या आपके पास दवाओं या ऑर्डर से जुड़ा कोई सवाल है?)",
-            "Got it! I am here to help you. If you'd like to place an order or need help with delivery, just let me know! (समझ गया! मैं आपकी सहायता के लिए हूँ। अगर आपको ऑर्डर करना है तो मुझे बताएं।)",
-            "Understood! For specific medical advice, it's always best to consult a professional. You can also contact our support at +91 8707535798. (समझ गया! विशेष सलाह के लिए आप हमारे सपोर्ट नंबर +91 8707535798 पर भी बात कर सकते हैं।)"
-        ];
-        return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+        // 8. CUSTOM ORDER OR ENQUIRY
+        if (cleanQuery.includes("order") || cleanQuery.includes("buy") || cleanQuery.includes("delivery") || cleanQuery.includes("dawa") || cleanQuery.includes("medicine")) {
+            return "To order medicines, simply search for them in our Medicine Catalog, add them to your Cart, and proceed to checkout. For special prescription medicines, feel free to contact us at +91 8707535798! (दवाएं ऑर्डर करने के लिए कैटलॉग से सिलेक्ट करें, कार्ट में डालें और चेकआउट करें।)";
+        }
+
+        // 9. GENERAL CONVERSATION FALLBACK
+        return "I understand your point! 📝 As your DawaKhana Assistant, I'm here to support you. Let me know if you have any questions about health, medicines, or your orders! (मैं समझ रहा हूँ। दवाओं या सेहत से जुड़े किसी भी सवाल के लिए आप मुझसे बेझिझक पूछ सकते हैं।)";
     };
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (input.trim() === '') return;
 
         const userMessage: Message = {
@@ -107,16 +157,64 @@ const ChatBot = () => {
         setInput('');
         setIsTyping(true);
 
-        // Simulate chatbot reply delay
-        setTimeout(() => {
-            const botMessage: Message = {
-                text: getBotResponse(userQuery),
+        try {
+            const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+            
+            if (geminiKey) {
+                // Initialize Gemini Client
+                const genAI = new GoogleGenerativeAI(geminiKey);
+                const model = genAI.getGenerativeModel({
+                    model: "gemini-1.5-flash",
+                    systemInstruction: "You are the DawaKhana Assistant, a helpful and friendly online pharmacy companion. You must reply politely in Hinglish/Hindi/English. Give short health info when asked (fever, cold, stomach ache), but politely remind them to consult a doctor. Be friendly, answer queries like 'kaise ho' (I am fine), 'khana khaya' (I am an AI, I don't eat food, but I run on electricity). Keep answers concise and interactive."
+                });
+
+                // Convert message history to Gemini format
+                const formattedHistory = messages.map(msg => ({
+                    role: msg.sender === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.text }]
+                }));
+
+                // Append latest query
+                formattedHistory.push({
+                    role: 'user',
+                    parts: [{ text: userQuery }]
+                });
+
+                const result = await model.generateContent({
+                    contents: formattedHistory,
+                    generationConfig: {
+                        maxOutputTokens: 250,
+                    }
+                });
+
+                const botText = result.response.text() || "I am currently processing your query. Please try again. (मैं आपके प्रश्न पर कार्य कर रहा हूँ।)";
+                
+                setMessages((prev) => [...prev, {
+                    text: botText,
+                    sender: 'bot',
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }]);
+            } else {
+                // If API Key is not set, run robust local pattern matcher
+                setTimeout(() => {
+                    setMessages((prev) => [...prev, {
+                        text: getLocalResponse(userQuery),
+                        sender: 'bot',
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }]);
+                }, 800);
+            }
+        } catch (error) {
+            console.error("Gemini AI API Error:", error);
+            // Fallback to local response on API error
+            setMessages((prev) => [...prev, {
+                text: getLocalResponse(userQuery),
                 sender: 'bot',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
-            setMessages((prev) => [...prev, botMessage]);
+            }]);
+        } finally {
             setIsTyping(false);
-        }, 1000);
+        }
     };
 
     return (
