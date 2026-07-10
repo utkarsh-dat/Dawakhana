@@ -68,11 +68,11 @@ export const metadata: Metadata = {
   },
   category: "Healthcare",
 };
-
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import JsonLd from "@/components/JsonLd";
+import ChatBot from "@/components/ChatBot";
 
 export default function RootLayout({
   children,
@@ -89,6 +89,7 @@ export default function RootLayout({
           <ToastProvider>
             <CartProvider>
               {children}
+              <ChatBot />
               {/* Version 1.2: SEO Updated */}
             </CartProvider>
           </ToastProvider>
