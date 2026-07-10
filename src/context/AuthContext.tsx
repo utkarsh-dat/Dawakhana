@@ -9,8 +9,11 @@ import {
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 
+const ADMIN_EMAILS = ["vickynishad110@gmail.com", "utkarshparmar2367@gmail.com"];
+
 interface AuthContextType {
     user: User | null;
+    isAdmin: boolean;
     loading: boolean;
     loginWithGoogle: () => Promise<void>;
     logout: () => Promise<void>;
@@ -18,6 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
+    isAdmin: false,
     loading: true,
     loginWithGoogle: async () => { },
     logout: async () => { },
@@ -27,6 +31,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -39,6 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
+            setIsAdmin(currentUser ? ADMIN_EMAILS.includes(currentUser.email || "") : false);
             setLoading(false);
         });
 
@@ -50,23 +56,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             alert("Authentication is not configured. Please check site settings.");
             return;
         }
-
         try {
             await signInWithPopup(auth, googleProvider);
-        } catch (error: any) {
+        } catch (error) {
             console.error("Error logging in with Google:", error);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const err = error as any;
 
             // Handle specific Firebase Auth errors
-            if (error?.code === 'auth/popup-closed-by-user') {
+            if (err?.code === 'auth/popup-closed-by-user') {
                 alert("Login cancelled. You closed the popup.");
-            } else if (error?.code === 'auth/cancelled-popup-request') {
+            } else if (err?.code === 'auth/cancelled-popup-request') {
                 // Multiple popups, ignore
-            } else if (error?.code === 'auth/unauthorized-domain') {
+            } else if (err?.code === 'auth/unauthorized-domain') {
                 alert("Login failed: This domain is not authorized in Firebase Console. Please add it to Authentication > Settings > Authorized Domains.");
-            } else if (error?.code === 'auth/operation-not-allowed') {
+            } else if (err?.code === 'auth/operation-not-allowed') {
                 alert("Login failed: Google/Email provider is not enabled in Firebase Console.");
             } else {
-                alert(`Login failed: ${error.message || "Unknown error"}`);
+                alert(`Login failed: ${err.message || "Unknown error"}`);
             }
             throw error;
         }
@@ -84,7 +91,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout }}>
+        <AuthContext.Provider value={{ user, isAdmin, loading, loginWithGoogle, logout }}>
             {!loading && children}
         </AuthContext.Provider>
     );
