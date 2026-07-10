@@ -43,7 +43,7 @@ const Footer = () => {
                     <h4 className="text-white font-semibold mb-4 sm:mb-6">Contact Us</h4>
                     <div className="flex items-center gap-3 text-sm justify-center sm:justify-start">
                         <Phone size={18} className="text-primary flex-shrink-0" />
-                        <span>+91 6394664907</span>
+                        <span>+91 8707535798</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm justify-center sm:justify-start">
                         <Mail size={18} className="text-primary flex-shrink-0" />
