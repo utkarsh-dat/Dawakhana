@@ -160,12 +160,12 @@ const ChatBot = () => {
         try {
             const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
             
-            // Check if key is present and starts with standard Google AI Studio key prefix 'AIzaSy'
-            if (geminiKey && geminiKey.startsWith("AIzaSy")) {
+            // Check if key is present and starts with standard Google AI Studio key prefix
+            if (geminiKey && (geminiKey.startsWith("AIzaSy") || geminiKey.startsWith("AQ."))) {
                 // Initialize Gemini Client
                 const genAI = new GoogleGenerativeAI(geminiKey);
                 const model = genAI.getGenerativeModel({
-                    model: "gemini-1.5-flash",
+                    model: "gemini-3.5-flash",
                     systemInstruction: "You are the DawaKhana Assistant, a helpful and friendly online pharmacy companion. You must reply politely in Hinglish/Hindi/English. Give short health info when asked (fever, cold, stomach ache), but politely remind them to consult a doctor. Be friendly, answer queries like 'kaise ho' (I am fine), 'khana khaya' (I am an AI, I don't eat food, but I run on electricity). Keep answers concise and interactive."
                 });
 
