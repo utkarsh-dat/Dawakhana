@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Loader2, Phone, Mail } from 'lucide-react';
+import { MessageSquare, X, Send, Loader2 } from 'lucide-react';
 
 interface Message {
     text: string;
@@ -29,29 +29,68 @@ const ChatBot = () => {
     }, [messages, isTyping]);
 
     const getBotResponse = (query: string): string => {
-        const lowerQuery = query.toLowerCase();
+        const cleanQuery = query.toLowerCase().trim().replace(/[?.,!]/g, "");
         
-        if (lowerQuery.includes('fever') || lowerQuery.includes('bukhar') || lowerQuery.includes('बुखार')) {
-            return "For fever (बुखार), Paracetamol (650mg) is commonly used. Take it after food, up to 3 times a day. If the fever stays above 101°F or lasts more than 3 days, please consult a doctor. (बुखार के लिए Paracetamol 650mg ली जा सकती है। कृपया बुखार अधिक होने पर डॉक्टर से संपर्क करें।)";
+        // 1. GREETINGS
+        if (["hello", "hi", "hey", "hola", "namaste", "नमस्ते", "हेलो", "helo", "hlo"].some(word => cleanQuery === word || cleanQuery.startsWith(word + " "))) {
+            const replies = [
+                "Hello there! 😊 Hope you are doing wonderful today. How can I help you? (नमस्ते! आशा है आपका दिन अच्छा जा रहा होगा। मैं आपकी क्या मदद कर सकता हूँ?)",
+                "Hi! It's great to connect with you. How is your day going so far? (हाय! आपसे बात करके अच्छा लगा। आपका दिन कैसा चल रहा है?)",
+                "Hello! DawaKhana assistant here. What can I do for you today? (नमस्ते! दवाखाना सहायक यहाँ है। मैं आज आपके लिए क्या कर सकता हूँ?)"
+            ];
+            return replies[Math.floor(Math.random() * replies.length)];
         }
-        
-        if (lowerQuery.includes('cough') || lowerQuery.includes('cold') || lowerQuery.includes('खांसी') || lowerQuery.includes('सर्दी') || lowerQuery.includes('जुकाम')) {
-            return "For cold and cough (सर्दी-खांसी), you can take standard cough syrups (like Alex or Ascoril) and take steam inhalation. Drink warm water and avoid cold items. (सर्दी-खांसी के लिए गर्म पानी पिएं और स्टीम लें।)";
+
+        // 2. HOW ARE YOU
+        if (cleanQuery.includes("how are you") || cleanQuery.includes("kaise ho") || cleanQuery.includes("aap kaise ho") || cleanQuery.includes("hal chal") || cleanQuery.includes("हाल चाल") || cleanQuery.includes("कैसे हो") || cleanQuery.includes("कैसी हो")) {
+            return "I am doing fantastic, running smoothly and ready to help! 🚀 Thank you so much for asking. How are you doing? How is your health today? (मैं बिल्कुल ठीक हूँ, पूछने के लिए बहुत धन्यवाद। आप कैसे हैं? आपकी तबीयत कैसी है?)";
         }
-        
-        if (lowerQuery.includes('headache') || lowerQuery.includes('sir dard') || lowerQuery.includes('सर दर्द')) {
-            return "For mild headaches (सर दर्द), a pain reliever like Crocin or Combiflam can help. Make sure to rest in a quiet, dark room and drink enough water. (सर दर्द के लिए आराम करें और पर्याप्त पानी पिएं।)";
+
+        // 3. EATING / FOOD
+        if (cleanQuery.includes("khana khaya") || cleanQuery.includes("did you eat") || cleanQuery.includes("eat food") || cleanQuery.includes("खाना खाया") || cleanQuery.includes("खाना खाए") || cleanQuery.includes("lunch") || cleanQuery.includes("dinner") || cleanQuery.includes("food")) {
+            return "Haha, that's sweet of you to ask! 🍕 I'm an AI, so I don't eat food. I only consume electricity and data. But what about you? Did you eat your food today? What did you have? (हाहा, पूछने के लिए धन्यवाद! मैं एक एआई हूँ, इसलिए खाना नहीं खा सकता। क्या आपने खाना खाया? आज आपने क्या खाया?)";
         }
-        
-        if (lowerQuery.includes('stomach') || lowerQuery.includes('pet dard') || lowerQuery.includes('पेट दर्द') || lowerQuery.includes('acidity') || lowerQuery.includes('gas')) {
-            return "For stomach pain or acidity (पेट दर्द/एसिडिटी), Digene syrup or Pan-D can be helpful. Avoid spicy/heavy food. (पेट दर्द या गैस के लिए हल्का खाना खाएं और डिजीन ले सकते हैं।)";
+
+        // 4. WHO ARE YOU / NAME
+        if (cleanQuery.includes("who are you") || cleanQuery.includes("what is your name") || cleanQuery.includes("naam kya hai") || cleanQuery.includes("tum kaun ho") || cleanQuery.includes("नाम") || cleanQuery.includes("कौन हो")) {
+            return "I am your friendly DawaKhana Virtual Assistant! 🤖 I can help you find medicines, give general health info, and guide you with orders. (मैं आपका दवाखाना सहायक हूँ! मैं आपको दवाएं ढूंढने और ऑर्डर करने में मदद कर सकता हूँ।)";
         }
-        
-        if (lowerQuery.includes('hello') || lowerQuery.includes('hi') || lowerQuery.includes('hey') || lowerQuery.includes('नमस्ते') || lowerQuery.includes('namaste')) {
-            return "Hello! I am your DawaKhana virtual helper. You can ask me about common health symptoms or medicines. (नमस्ते! मैं आपका दवाखाना सहायक हूँ। आप मुझसे सामान्य बीमारियों या दवाओं के बारे में पूछ सकते हैं।)";
+
+        // 5. THANK YOU
+        if (cleanQuery.includes("thank you") || cleanQuery.includes("thanks") || cleanQuery.includes("dhanyawad") || cleanQuery.includes("shukriya") || cleanQuery.includes("धन्यवाद") || cleanQuery.includes("शुक्रिया")) {
+            return "You're very welcome! ❤️ Helping you makes me happy. Is there anything else you'd like to ask? (आपका स्वागत है! आपकी मदद करके मुझे खुशी हुई। क्या आप कुछ और पूछना चाहते हैं?)";
         }
-        
-        return "I have received your query. For accurate medical guidance or placing a custom order, please contact our support team at +91 8707535798 or email us at Dawakhana011@gmail.com. (अपनी समस्या के लिए आप हमारे सपोर्ट टीम से +91 8707535798 पर संपर्क कर सकते हैं।)";
+
+        // 6. BYE
+        if (cleanQuery.includes("bye") || cleanQuery.includes("goodbye") || cleanQuery.includes("alvida") || cleanQuery.includes("बाय")) {
+            return "Goodbye! 👋 Take care of your health, eat well, and have a beautiful day ahead! (बाय-बाय! अपनी सेहत का ख्याल रखें और आपका दिन शुभ हो!)";
+        }
+
+        // 7. COMMON HEALTH ILLNESSES
+        if (cleanQuery.includes('fever') || cleanQuery.includes('bukhar') || cleanQuery.includes('बुखार')) {
+            return "Oh, sorry to hear that. For fever (बुखार), Paracetamol 650mg is typically taken after meals. Keep track of your temperature, drink plenty of water, and rest. If it doesn't improve in 3 days, please consult a doctor. (बुखार के लिए Paracetamol 650mg ली जा सकती है। आराम करें और डॉक्टर से संपर्क करें।)";
+        }
+
+        if (cleanQuery.includes('cough') || cleanQuery.includes('cold') || cleanQuery.includes('खांसी') || cleanQuery.includes('सर्दी') || cleanQuery.includes('जुकाम') || cleanQuery.includes('sardi') || cleanQuery.includes('khansi')) {
+            return "Cold and cough (सर्दी-खांसी) can be annoying! Taking steam inhalation twice a day and drinking warm ginger tea can help. Standard syrups like Alex or Ascoril are useful. Rest well and keep warm! (सर्दी-खांसी के लिए गर्म पानी/चाय पिएं और भाप लें।)";
+        }
+
+        if (cleanQuery.includes('headache') || cleanQuery.includes('sir dard') || cleanQuery.includes('सर दर्द')) {
+            return "For headaches (सर दर्द), check if you need some rest or water. A Crocin or Combiflam can relieve mild pain. Avoid looking at screens for a while. (सर दर्द के लिए स्क्रीन से दूर रहें, थोड़ा पानी पिएं और आराम करें।)";
+        }
+
+        if (cleanQuery.includes('stomach') || cleanQuery.includes('pet dard') || cleanQuery.includes('पेट दर्द') || cleanQuery.includes('acidity') || cleanQuery.includes('gas')) {
+            return "Stomach discomfort or acidity (पेट दर्द/एसिडिटी) can often be settled with Digene or Pan-D. Try to eat light foods like khichdi and avoid spicy items. (पेट के दर्द/गैस के लिए हल्का खाना खाएं।)";
+        }
+
+        // 8. FALLBACK (SMART MULTI-TURN AI FEEL)
+        const fallbacks = [
+            "I see! 📝 As a health assistant, I'm constantly learning. Could you explain a bit more so I can guide you better? (मैं समझ रहा हूँ। क्या आप थोड़ा विस्तार से बता सकते हैं ताकि मैं बेहतर मदद कर सकूँ?)",
+            "That's interesting! How is your day going? Do you have any queries about DawaKhana services or ordering medicines? (दिलचस्प बात है! क्या आपके पास दवाओं या ऑर्डर से जुड़ा कोई सवाल है?)",
+            "Got it! I am here to help you. If you'd like to place an order or need help with delivery, just let me know! (समझ गया! मैं आपकी सहायता के लिए हूँ। अगर आपको ऑर्डर करना है तो मुझे बताएं।)",
+            "Understood! For specific medical advice, it's always best to consult a professional. You can also contact our support at +91 8707535798. (समझ गया! विशेष सलाह के लिए आप हमारे सपोर्ट नंबर +91 8707535798 पर भी बात कर सकते हैं।)"
+        ];
+        return fallbacks[Math.floor(Math.random() * fallbacks.length)];
     };
 
     const handleSend = () => {
