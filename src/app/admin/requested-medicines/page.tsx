@@ -7,7 +7,7 @@ import { collection, onSnapshot, doc, deleteDoc, Timestamp } from "firebase/fire
 import { db } from "@/lib/firebase";
 import { ArrowLeft, Pill, Trash2, Calendar, TrendingUp } from "lucide-react";
 
-const ADMIN_EMAILS = ["vickynishad110@gmail.com", "dawakhana011@gmail.com"];
+
 
 interface MissingMedicine {
     id: string;
@@ -17,12 +17,12 @@ interface MissingMedicine {
 }
 
 export default function RequestedMedicinesPage() {
-    const { user, loading: authLoading } = useAuth();
+    const { user, isAdmin, loading: authLoading } = useAuth();
     const [medicines, setMedicines] = useState<MissingMedicine[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user || !ADMIN_EMAILS.includes(user.email || "")) return;
+        if (!user || !isAdmin) return;
 
         const unsubscribe = onSnapshot(collection(db, "missingMedicineRequests"), (snapshot) => {
             const data = snapshot.docs.map((doc) => ({
@@ -59,7 +59,7 @@ export default function RequestedMedicinesPage() {
     }
 
     // Not admin
-    if (!user || !ADMIN_EMAILS.includes(user.email || "")) {
+    if (!user || !isAdmin) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
