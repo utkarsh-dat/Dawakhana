@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     description: "Your trusted online pharmacy for authentic medicines. Buy cardiac, diabetic, psychiatric medicines at best prices with free delivery.",
     images: [
       {
-        url: "/images/logo.jpg",
+        url: "/images/logo.png",
         width: 1200,
         height: 630,
         alt: "DawaKhana - Online Pharmacy",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DawaKhana | Premium Online Pharmacy",
     description: "Your trusted online pharmacy for authentic medicines. Free delivery on orders above ₹200.",
-    images: ["/images/logo.jpg"],
+    images: ["/images/logo.png"],
   },
   alternates: {
     canonical: "https://dawakhana.netlify.app",

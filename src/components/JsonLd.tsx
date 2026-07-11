@@ -6,7 +6,7 @@ export default function JsonLd() {
         "@type": "Organization",
         "name": "DawaKhana",
         "url": "https://dawakhana.netlify.app",
-        "logo": "https://dawakhana.netlify.app/images/logo.jpg",
+        "logo": "https://dawakhana.netlify.app/images/logo.png",
         "description": "Your trusted online pharmacy for authentic medicines",
         "contactPoint": {
             "@type": "ContactPoint",
@@ -24,7 +24,7 @@ export default function JsonLd() {
         "@context": "https://schema.org",
         "@type": "Pharmacy",
         "name": "DawaKhana Online Pharmacy",
-        "image": "https://dawakhana.netlify.app/images/logo.jpg",
+        "image": "https://dawakhana.netlify.app/images/logo.png",
         "url": "https://dawakhana.netlify.app",
         "description": "DawaKhana - Your trusted online pharmacy for authentic medicines. Buy cardiac, diabetic, psychiatric medicines at best prices.",
         "priceRange": "₹₹",

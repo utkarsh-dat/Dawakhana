@@ -48,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
                         <img
-                            src="/images/logo.jpg"
+                            src="/images/logo.png"
                             alt="DawaKhana"
                             className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-cover premium-shadow group-hover:scale-110 transition-transform"
                         />

@@ -10,7 +10,7 @@ const Footer = () => {
                 <div className="space-y-4 text-center sm:text-left">
                     <Link href="/" className="flex items-center gap-2 justify-center sm:justify-start">
                         <img
-                            src="/images/logo.jpg"
+                            src="/images/logo.png"
                             alt="DawaKhana"
                             className="w-10 h-10 rounded-xl object-cover"
                         />
