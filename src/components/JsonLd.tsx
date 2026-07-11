@@ -16,7 +16,7 @@ export default function JsonLd() {
         "sameAs": [
             "https://facebook.com/dawakhana",
             "https://twitter.com/dawakhana",
-            "https://instagram.com/dawakhana"
+            "https://instagram.com/dawakhana.011"
         ]
     };
 
