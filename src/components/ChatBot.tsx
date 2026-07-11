@@ -17,12 +17,23 @@ const ChatBot = () => {
         {
             text: "Hello! Welcome to DawaKhana. How can I help you today? (नमस्ते! दवाखाना में स्वागत है। आज मैं आपकी क्या सहायता कर सकता हूँ?)",
             sender: 'bot',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            time: ""
         }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // Set initial time on client side to avoid Next.js SSR hydration mismatch
+    useEffect(() => {
+        setMessages((prev) => {
+            const updated = [...prev];
+            if (updated[0] && updated[0].time === "") {
+                updated[0].time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            return updated;
+        });
+    }, []);
 
     // Auto-scroll to the bottom of chat history when a message is added
     useEffect(() => {
