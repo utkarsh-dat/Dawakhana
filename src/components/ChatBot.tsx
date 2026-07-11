@@ -45,7 +45,7 @@ const ChatBot = () => {
             cleanQuery.includes("कैसे") ||
             cleanQuery.includes("कैसा")
         ) {
-            return "I am doing fantastic, running smoothly and ready to help! 🚀 Thank you so much for asking. How are you doing? How is your health today? (मैं बिल्कुल ठीक हूँ, पूछने के लिए बहुत धन्यवाद। आप कैसे हैं? आपकी तबीयत कैसी है?)";
+            return "I am doing fantastic, running smoothly and ready to help! 🚀 How are you doing today? If you need medical guidance, I can help you schedule a doctor consultation. (मैं बिल्कुल ठीक हूँ। आप कैसे हैं? यदि आपको चिकित्सा मार्गदर्शन की आवश्यकता है, तो मैं डॉक्टर परामर्श बुक करने में आपकी मदद कर सकता हूँ।)";
         }
 
         // 2. EATING / FOOD (khana khaya, did you eat, eat food, etc.)
@@ -60,7 +60,7 @@ const ChatBot = () => {
             cleanQuery.includes("खाना") ||
             cleanQuery.includes("खाया")
         ) {
-            return "Haha, that's sweet of you to ask! 🍕 I'm an AI, so I don't eat food. I only consume electricity and data. But what about you? Did you eat your food today? What did you have? (हाहा, पूछने के लिए धन्यवाद! मैं एक एआई हूँ, इसलिए खाना नहीं खा सकता। क्या आपने खाना खाया? आज आपने क्या खाया?)";
+            return "Haha, I'm an AI, so I don't eat food! I only consume electricity and data. But please take good care of your health and eat on time. (हाहा, मैं एक एआई हूँ, इसलिए खाना नहीं खा सकता! कृपया अपने स्वास्थ्य का ध्यान रखें और समय पर भोजन करें।)";
         }
 
         // 3. IDENTITY / WHO ARE YOU (who are you, what is your name, kaun ho, naam kya hai, etc.)
@@ -73,7 +73,7 @@ const ChatBot = () => {
             cleanQuery.includes("नाम") ||
             cleanQuery.includes("कौन")
         ) {
-            return "I am your friendly DawaKhana Virtual Assistant! 🤖 I can help you find medicines, give general health info, and guide you with orders. (मैं आपका दवाखाना सहायक हूँ! मैं आपको दवाएं ढूंढने और ऑर्डर करने में मदद कर सकता हूँ।)";
+            return "I am your friendly DawaKhana Virtual Assistant! 🤖 My primary goal is to help you browse our medicine catalog and assist you in booking teleconsultations with qualified doctors. (मैं आपका दवाखाना सहायक हूँ! मेरा काम दवाओं को खोजने और डॉक्टरों के साथ टेलीकंसल्टेशन बुक करने में आपकी मदद करना है।)";
         }
 
         // 4. GREETINGS (hello, hi, hlo, helo, namaste, etc.)
@@ -92,7 +92,7 @@ const ChatBot = () => {
             cleanQuery.startsWith("helo ") ||
             cleanQuery.startsWith("hey ")
         ) {
-            return "Hello there! 😊 Hope you are doing wonderful today. How can I help you? (नमस्ते! आशा है आपका दिन अच्छा जा रहा होगा। मैं आपकी क्या मदद कर सकता हूँ?)";
+            return "Hello there! 😊 How can I help you today? If you want to connect with a doctor, I can provide information to schedule a consultation. (नमस्ते! आज मैं आपकी क्या मदद कर सकता हूँ? यदि आप डॉक्टर से संपर्क करना चाहते हैं, तो मैं परामर्श शेड्यूल करने की जानकारी दे सकता हूँ।)";
         }
 
         // 5. THANK YOU
@@ -104,7 +104,7 @@ const ChatBot = () => {
             cleanQuery.includes("धन्यवाद") || 
             cleanQuery.includes("शुक्रिया")
         ) {
-            return "You're very welcome! ❤️ Helping you makes me happy. Is there anything else you'd like to ask? (आपका स्वागत है! आपकी मदद करके मुझे खुशी हुई। क्या आप कुछ और पूछना चाहते हैं?)";
+            return "You're very welcome! ❤️ Let me know if you need help booking a doctor consultation or finding medicines. (आपका स्वागत है! परामर्श बुक करने या दवाओं को खोजने में मदद चाहिए तो अवश्य बताएं।)";
         }
 
         // 6. BYE
@@ -114,33 +114,31 @@ const ChatBot = () => {
             cleanQuery.includes("alvida") || 
             cleanQuery.includes("बाय")
         ) {
-            return "Goodbye! 👋 Take care of your health, eat well, and have a beautiful day ahead! (बाय-बाय! अपनी सेहत का ख्याल रखें और आपका दिन शुभ हो!)";
+            return "Goodbye! 👋 Take care of your health! If you ever need a teleconsultation, we are here to help. (बाय-बाय! अपनी सेहत का ख्याल रखें!)";
         }
 
-        // 7. COMMON HEALTH ILLNESSES
-        if (cleanQuery.includes('fever') || cleanQuery.includes('bukhar') || cleanQuery.includes('बुखार')) {
-            return "Oh, sorry to hear that. For fever (बुखार), Paracetamol 650mg is typically taken after meals. Keep track of your temperature, drink plenty of water, and rest. If it doesn't improve in 3 days, please consult a doctor. (बुखार के लिए Paracetamol 650mg ली जा सकती है। आराम करें और डॉक्टर से संपर्क करें।)";
-        }
-
-        if (cleanQuery.includes('cough') || cleanQuery.includes('cold') || cleanQuery.includes('खांसी') || cleanQuery.includes('सर्दी') || cleanQuery.includes('जुकाम') || cleanQuery.includes('sardi') || cleanQuery.includes('khansi')) {
-            return "Cold and cough (सर्दी-खांसी) can be annoying! Taking steam inhalation twice a day and drinking warm ginger tea can help. Standard syrups like Alex or Ascoril are useful. Rest well and keep warm! (सर्दी-खांसी के लिए गर्म पानी/चाय पिएं और भाप लें।)";
-        }
-
-        if (cleanQuery.includes('headache') || cleanQuery.includes('sir dard') || cleanQuery.includes('सर दर्द')) {
-            return "For headaches (सर दर्द), check if you need some rest or water. A Crocin or Combiflam can relieve mild pain. Avoid looking at screens for a while. (सर दर्द के लिए स्क्रीन से दूर रहें, थोड़ा पानी पिएं और आराम करें।)";
-        }
-
-        if (cleanQuery.includes('stomach') || cleanQuery.includes('pet dard') || cleanQuery.includes('पेट दर्द') || cleanQuery.includes('acidity') || cleanQuery.includes('gas')) {
-            return "Stomach discomfort or acidity (पेट दर्द/एसिडिटी) can often be settled with Digene or Pan-D. Try to eat light foods like khichdi and avoid spicy items. (पेट के दर्द/गैस के लिए हल्का खाना खाएं।)";
+        // 7. HEALTH ISSUES / SYMPTOMS / DOCTOR CONSULTATION REQUESTS
+        if (
+            cleanQuery.includes('fever') || cleanQuery.includes('bukhar') || cleanQuery.includes('बुखार') ||
+            cleanQuery.includes('cough') || cleanQuery.includes('cold') || cleanQuery.includes('खांसी') || 
+            cleanQuery.includes('सर्दी') || cleanQuery.includes('जुकाम') || cleanQuery.includes('sardi') || 
+            cleanQuery.includes('khansi') || cleanQuery.includes('headache') || cleanQuery.includes('sir dard') || 
+            cleanQuery.includes('सर दर्द') || cleanQuery.includes('stomach') || cleanQuery.includes('pet dard') || 
+            cleanQuery.includes('पेट दर्द') || cleanQuery.includes('acidity') || cleanQuery.includes('gas') ||
+            cleanQuery.includes('doctor') || cleanQuery.includes('consult') || cleanQuery.includes('appointment') || 
+            cleanQuery.includes('ill') || cleanQuery.includes('sick') || cleanQuery.includes('pain') ||
+            cleanQuery.includes('डॉक्टर') || cleanQuery.includes('बीमार') || cleanQuery.includes('दिखाना')
+        ) {
+            return "To protect your health, I am strictly forbidden from providing medical advice, suggesting diagnoses, or recommending individual doctors. However, you can schedule a teleconsultation with a qualified medical professional through our platform. Please contact us at +91 8707535798 to book your consultation! (अपनी सुरक्षा के लिए, मुझे चिकित्सा सलाह देने, रोगों का निदान करने या विशिष्ट डॉक्टरों की सिफारिश करने की अनुमति नहीं है। यदि आप अस्वस्थ हैं, तो आप हमारे प्लेटफ़ॉर्म के माध्यम से डॉक्टर के साथ टेलीकंसल्टेशन बुक कर सकते हैं। बुकिंग के लिए कृपया +91 8707535798 पर संपर्क करें!)";
         }
 
         // 8. CUSTOM ORDER OR ENQUIRY
         if (cleanQuery.includes("order") || cleanQuery.includes("buy") || cleanQuery.includes("delivery") || cleanQuery.includes("dawa") || cleanQuery.includes("medicine")) {
-            return "To order medicines, simply search for them in our Medicine Catalog, add them to your Cart, and proceed to checkout. For special prescription medicines, feel free to contact us at +91 8707535798! (दवाएं ऑर्डर करने के लिए कैटलॉग से सिलेक्ट करें, कार्ट में डालें और चेकआउट करें।)";
+            return "To order medicines, simply search for them in our Medicine Catalog, add them to your Cart, and proceed to checkout. For support or ordering, contact us at +91 8707535798! (दवाएं ऑर्डर करने के लिए कैटलॉग से सिलेक्ट करें, कार्ट में डालें और चेकआउट करें।)";
         }
 
         // 9. GENERAL CONVERSATION FALLBACK
-        return "I understand your point! 📝 As your DawaKhana Assistant, I'm here to support you. Let me know if you have any questions about health, medicines, or your orders! (मैं समझ रहा हूँ। दवाओं या सेहत से जुड़े किसी भी सवाल के लिए आप मुझसे बेझिझक पूछ सकते हैं।)";
+        return "I am here to assist you! 📝 I can guide you on how to book a teleconsultation with qualified doctors on our platform or find medicines. For teleconsultation bookings, please contact us at +91 8707535798. (मैं आपकी सहायता के लिए तैयार हूँ! आप +91 8707535798 पर संपर्क करके टेलीकंसल्टेशन बुक कर सकते हैं।)";
     };
 
     const handleSend = async () => {
@@ -166,7 +164,7 @@ const ChatBot = () => {
                 const genAI = new GoogleGenerativeAI(geminiKey);
                 const model = genAI.getGenerativeModel({
                     model: "gemini-3.5-flash",
-                    systemInstruction: "You are the DawaKhana Assistant, a professional digital pharmacy companion for the DawaKhana website. Your goals are:\n1. Help users analyze symptoms (like fever, cold, stomach ache, high blood pressure, diabetic issues), suggest potential general causes, and recommend relevant medicines available on the DawaKhana website.\n2. Maintain a warm, empathetic, and professional tone. Respond in the language the user speaks (Hindi, Hinglish, or English).\n3. ALWAYS include a clear medical disclaimer in your symptom or medicine responses, advising them to consult a qualified doctor or healthcare professional before starting any medication.\n\nWebsite Catalog details to recommend:\n- Cardiac / Blood Pressure: Cdtel (Telmisartan), Amlotoz (Amlodipine), Atrona (Atorvastatin), Rosuna.\n- Diabetic: Cdmet (Metformin), Glimceed (Glimepiride), Gludazin.\n- General Wellness / Fever / Pain: Paracetamol, Crocin, Combiflam.\n- Acidity / Gas / Stomach: Digene, Pan-D.\n- Cold / Cough: steam inhalation, Alex syrup, Ascoril syrup.\n\nConversational Chitchat:\n- Greeting: Warmly greet them and welcome them to DawaKhana.\n- Well-being (e.g., 'kaise ho', 'how are you'): Politely reply that you are running great and ask how they are feeling.\n- Food (e.g., 'khana khaya', 'did you eat'): Playfully explain that as an AI, you run on electricity, but ask if they had their meal.\n\nKeep answers structured, interactive, concise, and friendly. Use emojis."
+                    systemInstruction: "You are a digital pharmacy assistant for the DawaKhana website. Your primary goal is to assist users in booking consultations with qualified medical professionals. When a user expresses a health concern, reports symptoms, or requests to see a doctor, you must provide information on how to schedule a teleconsultation through our platform (by contacting support at +91 8707535798). You are STRICTLY FORBIDDEN from providing medical advice, suggesting diagnoses, recommending specific medications, or recommending individual doctors."
                 });
 
                 // Convert message history to Gemini format
