@@ -53,6 +53,15 @@ const Footer = () => {
                         <MapPin size={18} className="text-primary flex-shrink-0" />
                         <span>Azad Nagar, Pakri Ka Pul</span>
                     </div>
+                    <a 
+                        href="https://instagram.com/dawakhana.011" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center gap-3 text-sm justify-center sm:justify-start hover:text-primary transition-colors group"
+                    >
+                        <Instagram size={18} className="text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+                        <span>@dawakhana.011</span>
+                    </a>
                 </div>
             </div>
 
