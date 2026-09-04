@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Package, Clock, CheckCircle, ChevronRight, MapPin, Truck, Loader2 } from "lucide-react";
 import CartState from "@/components/CartState";
 import Footer from "@/components/Footer";
@@ -10,16 +10,51 @@ import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { Order } from "@/lib/types";
+import dynamic from "next/dynamic";
+
+const TrackingModal = dynamic(() => import("@/components/TrackingModal"), {
+    ssr: false,
+    loading: () => (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+            <div className="bg-white p-6 rounded-2xl flex items-center gap-3 shadow-xl">
+                <Loader2 className="animate-spin text-primary" size={24} />
+                <span className="font-bold text-sm text-slate-700">Loading Tracking Map...</span>
+            </div>
+        </div>
+    )
+});
 
 const OrdersPage = () => {
     const { user } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [cancellingId, setCancellingId] = useState<string | null>(null);
+    const [selectedTrackingOrder, setSelectedTrackingOrder] = useState<Order | null>(null);
 
     useEffect(() => {
+        const loadLocalOrders = () => {
+            try {
+                const guestOrders = JSON.parse(localStorage.getItem("guest_orders") || "[]");
+                // Show user's local orders or guest orders
+                const filteredLocal = user 
+                    ? guestOrders.filter((o: any) => o.userId === user.uid || o.userId.startsWith("guest_"))
+                    : guestOrders;
+                
+                // Map fields to match Order structure
+                const formatted = filteredLocal.map((o: any) => ({
+                    ...o,
+                    createdAt: o.createdAt || { seconds: Date.now() / 1000 }
+                }));
+                setOrders(formatted);
+            } catch (err) {
+                console.error("Error loading local orders:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         if (!user) {
-            setLoading(false);
+            loadLocalOrders();
             return;
         }
 
@@ -37,12 +72,8 @@ const OrdersPage = () => {
             setOrders(ordersData);
             setLoading(false);
         }, (error) => {
-            console.error("Error fetching orders:", error);
-            // Common error: Missing index
-            if (error.code === 'failed-precondition') {
-                alert("System Config Needed: The 'Orders' list requires a Firestore Index. Check the browser console for the creation link.");
-            }
-            setLoading(false);
+            console.warn("Firestore fetch failed, loading local orders instead:", error);
+            loadLocalOrders();
         });
 
         return () => unsubscribe();
@@ -57,8 +88,19 @@ const OrdersPage = () => {
                 status: "Cancelled"
             });
         } catch (error) {
-            console.error("Error cancelling order:", error);
-            alert("Failed to cancel order. Please try again.");
+            console.warn("Error cancelling order in Firestore, updating locally:", error);
+            // Fallback: Update in local storage
+            try {
+                const guestOrders = JSON.parse(localStorage.getItem("guest_orders") || "[]");
+                const updated = guestOrders.map((o: any) => 
+                    o.id === orderId ? { ...o, status: "Cancelled" } : o
+                );
+                localStorage.setItem("guest_orders", JSON.stringify(updated));
+                // Update component state
+                setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: "Cancelled" } : o));
+            } catch (e) {
+                console.error("Failed to update local order cancellation:", e);
+            }
         } finally {
             setCancellingId(null);
         }
@@ -142,6 +184,15 @@ const OrdersPage = () => {
                                                     <MapPin size={20} className="text-primary" />
                                                     <p className="text-sm">Deliver to: <span className="text-white font-bold">{highlightedOrder.address.firstName} {highlightedOrder.address.lastName}</span></p>
                                                 </div>
+                                                {highlightedOrder.status !== 'Delivered' && (
+                                                    <button
+                                                        onClick={() => setSelectedTrackingOrder(highlightedOrder)}
+                                                        className="mt-2 w-full md:w-auto px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/95 transition-colors flex items-center justify-center gap-2 text-sm shadow-lg shadow-primary/10"
+                                                    >
+                                                        <Truck size={16} />
+                                                        Track Live Delivery
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
 
@@ -207,6 +258,19 @@ const OrdersPage = () => {
                                             </div>
                                             <p className="text-lg font-bold">₹{order.total.toFixed(2)}</p>
 
+                                            {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedTrackingOrder(order);
+                                                    }}
+                                                    className="mt-1 text-xs text-primary font-bold hover:underline flex items-center gap-1"
+                                                >
+                                                    <Truck size={12} />
+                                                    Track Delivery
+                                                </button>
+                                            )}
+
                                             {/* Cancel Button */}
                                             {['Pending', 'Pending Verification', 'Order Placed'].includes(order.status) && (
                                                 <button
@@ -236,6 +300,15 @@ const OrdersPage = () => {
             </main>
 
             <Footer />
+
+            <AnimatePresence>
+                {selectedTrackingOrder && (
+                    <TrackingModal
+                        order={selectedTrackingOrder}
+                        onClose={() => setSelectedTrackingOrder(null)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

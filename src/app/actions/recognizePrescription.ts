@@ -5,9 +5,9 @@ import Groq from "groq-sdk";
 import OpenAI from "openai";
 
 // Initialize APIs
-const geminiApiKey = process.env.GEMINI_API_KEY;
-const groqApiKey = process.env.GROQ_API_KEY;
-const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+const geminiApiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const groqApiKey = process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY;
+const deepseekApiKey = process.env.DEEPSEEK_API_KEY || process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY;
 
 console.log("API Keys Check:", {
     hasGemini: !!geminiApiKey,
@@ -115,7 +115,7 @@ If the input is completely irrelevant, return: {"medicines": []}
                     },
                 };
 
-                const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"];
+                const modelsToTry = ["gemini-3.5-flash", "gemini-2.5-flash"];
 
                 for (const modelName of modelsToTry) {
                     try {
@@ -158,7 +158,7 @@ If the input is completely irrelevant, return: {"medicines": []}
 
             // Fallback to Gemini for text
             if (genAI) {
-                const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+                const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
                 const result = await model.generateContent(textPrompt + "\n\nUser Input:\n" + textInput);
                 const responseText = result.response.text();
                 return parseResponse(responseText);

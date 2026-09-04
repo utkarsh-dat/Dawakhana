@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MedicineCard from "./MedicineCard";
-import { medicines, Medicine } from "@/lib/medicines";
+import { medicines as staticMedicines, Medicine } from "@/lib/medicines";
 import { Filter, ChevronDown, Search, X } from "lucide-react";
 
-const categories = ["All", "Psychiatric", "Cardiac", "Diabetic"];
+const categories = ["All", "Prescriptions", "Healthcare", "Wellness", "Personal Care", "Psychiatric", "Cardiac", "Diabetic"];
 
 interface CatalogGridProps {
     limit?: number;
@@ -16,29 +16,77 @@ interface CatalogGridProps {
 const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
     const [activeCategory, setActiveCategory] = useState("All");
     const [localSearch, setLocalSearch] = useState(searchQuery || "");
+    const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isFallback, setIsFallback] = useState(false);
 
-    // Filter by category
-    let filteredMedicines = activeCategory === "All"
-        ? medicines
-        : medicines.filter(m => m.category === activeCategory);
+    useEffect(() => {
+        const fetchMedicines = async () => {
+            setLoading(true);
+            try {
+                // Dynamic import to keep component bundle lightweight and avoid server-side dependency issues
+                const { searchMedicines } = await import("@/lib/db/medicines.service");
+                const dbItems = await searchMedicines({
+                    category: activeCategory,
+                    search: localSearch
+                });
 
-    // Filter by search query (either from prop or local state)
-    const searchTerm = localSearch.toLowerCase().trim();
-    if (searchTerm) {
-        filteredMedicines = filteredMedicines.filter(m =>
-            m.name.toLowerCase().includes(searchTerm) ||
-            m.description.toLowerCase().includes(searchTerm) ||
-            m.category.toLowerCase().includes(searchTerm)
-        );
-    }
+                if (dbItems && dbItems.length > 0) {
+                    // Map MedicineDoc properties to local Medicine interface if necessary
+                    const mappedItems: Medicine[] = dbItems.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        category: item.category as any,
+                        price: item.price,
+                        description: item.description,
+                        image: item.image,
+                        inStock: item.inStock,
+                        rating: item.rating,
+                        reviews: item.reviews
+                    }));
 
-    // For homepage (with limit), only show medicines with real images
-    if (limit) {
-        const medicinesWithImages = filteredMedicines.filter(m =>
-            !m.image.includes('placehold.co')
-        );
-        filteredMedicines = medicinesWithImages.slice(0, limit);
-    }
+                    let finalItems = mappedItems;
+                    if (limit) {
+                        finalItems = finalItems.filter(m => !m.image.includes("placehold.co")).slice(0, limit);
+                    }
+                    setFilteredMedicines(finalItems);
+                    setIsFallback(false);
+                } else {
+                    // If DB is empty, run local filtering
+                    runLocalFallback();
+                }
+            } catch (err) {
+                console.warn("Firestore fetch failed, falling back to static medicines list:", err);
+                runLocalFallback();
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const runLocalFallback = () => {
+            setIsFallback(true);
+            let local = activeCategory === "All"
+                ? staticMedicines
+                : staticMedicines.filter(m => m.category === activeCategory);
+
+            const searchTerm = localSearch.toLowerCase().trim();
+            if (searchTerm) {
+                local = local.filter(m =>
+                    m.name.toLowerCase().includes(searchTerm) ||
+                    m.description.toLowerCase().includes(searchTerm) ||
+                    m.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (limit) {
+                local = local.filter(m => !m.image.includes("placehold.co")).slice(0, limit);
+            }
+            setFilteredMedicines(local);
+        };
+
+        fetchMedicines();
+    }, [activeCategory, localSearch, limit]);
+
 
     return (
         <section id="catalog" className="py-12 sm:py-16 px-4 sm:px-6 max-w-7xl mx-auto">
@@ -95,7 +143,28 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
                 )}
             </div>
 
-            {filteredMedicines.length === 0 ? (
+            {loading ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                    {[...Array(limit || 6)].map((_, i) => (
+                        <div key={i} className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-100 premium-shadow p-4 sm:p-6 space-y-4 animate-pulse">
+                            <div className="h-36 xs:h-40 sm:h-48 w-full bg-slate-100 rounded-xl sm:rounded-2xl" />
+                            <div className="flex justify-between items-center">
+                                <div className="h-4 w-16 bg-slate-100 rounded" />
+                                <div className="h-4 w-12 bg-slate-100 rounded" />
+                            </div>
+                            <div className="h-6 w-3/4 bg-slate-100 rounded" />
+                            <div className="space-y-2">
+                                <div className="h-4 w-full bg-slate-100 rounded" />
+                                <div className="h-4 w-5/6 bg-slate-100 rounded" />
+                            </div>
+                            <div className="flex justify-between items-center pt-4 border-t border-slate-50">
+                                <div className="h-8 w-24 bg-slate-100 rounded" />
+                                <div className="h-10 w-10 bg-slate-100 rounded-xl" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : filteredMedicines.length === 0 ? (
                 <div className="text-center py-12 sm:py-20">
                     <p className="text-lg sm:text-xl text-muted-foreground">
                         {localSearch ? `No medicines found for "${localSearch}"` : "No medicines found in this category."}
@@ -131,11 +200,15 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
 
             {/* Load More/Stats */}
             <div className="mt-10 sm:mt-16 text-center">
-                {limit && (
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">Showing {filteredMedicines.length} top products</p>
+                {limit && !loading && (
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
+                        Showing {filteredMedicines.length} top products {isFallback && "(Demo Mode)"}
+                    </p>
                 )}
-                {!limit && (
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">Showing {filteredMedicines.length} of {medicines.length} items</p>
+                {!limit && !loading && (
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
+                        Showing {filteredMedicines.length} of {isFallback ? staticMedicines.length : filteredMedicines.length} items {isFallback && "(Demo Mode)"}
+                    </p>
                 )}
 
                 {limit ? (

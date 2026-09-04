@@ -2,6 +2,11 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Medicine } from "@/lib/medicines";
+import dynamic from "next/dynamic";
+
+const ChatBot = dynamic(() => import("@/components/ChatBot"), {
+    ssr: false,
+});
 import { useAuth } from "./AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -163,6 +168,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }}
         >
             {children}
+            <ChatBot />
         </CartContext.Provider>
     );
 };

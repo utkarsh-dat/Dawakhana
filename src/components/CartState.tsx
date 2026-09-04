@@ -2,7 +2,11 @@
 
 import React, { useState } from "react";
 import Header from "./Header";
-import CartDrawer from "./CartDrawer";
+import dynamic from "next/dynamic";
+
+const CartDrawer = dynamic(() => import("./CartDrawer"), {
+    ssr: false
+});
 
 const CartState = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);

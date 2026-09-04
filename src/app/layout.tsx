@@ -8,6 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://dawakhana.netlify.app"),
   title: {
     default: "DawaKhana | Premium Online Pharmacy - Authentic Medicines Delivered",
     template: "%s | DawaKhana Online Pharmacy",
@@ -72,7 +73,6 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import JsonLd from "@/components/JsonLd";
-import ChatBot from "@/components/ChatBot";
 
 export default function RootLayout({
   children,
@@ -80,16 +80,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} font-inter antialiased bg-background text-foreground`}
+        suppressHydrationWarning
       >
         <JsonLd />
         <AuthProvider>
           <ToastProvider>
             <CartProvider>
               {children}
-              <ChatBot />
               {/* Version 1.2: SEO Updated */}
             </CartProvider>
           </ToastProvider>
