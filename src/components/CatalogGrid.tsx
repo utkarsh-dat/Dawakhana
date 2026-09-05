@@ -47,7 +47,7 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
 
                     let finalItems = mappedItems;
                     if (limit) {
-                        finalItems = finalItems.filter(m => !m.image.includes("placehold.co")).slice(0, limit);
+                        finalItems = finalItems.slice(0, limit);
                     }
                     setFilteredMedicines(finalItems);
                     setIsFallback(false);
@@ -67,7 +67,10 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
             setIsFallback(true);
             let local = activeCategory === "All"
                 ? staticMedicines
-                : staticMedicines.filter(m => m.category === activeCategory);
+                : staticMedicines.filter(m => 
+                    m.category === activeCategory || 
+                    m.category.replace(/\s+/g, '') === activeCategory.replace(/\s+/g, '')
+                  );
 
             const searchTerm = localSearch.toLowerCase().trim();
             if (searchTerm) {
@@ -79,7 +82,7 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
             }
 
             if (limit) {
-                local = local.filter(m => !m.image.includes("placehold.co")).slice(0, limit);
+                local = local.slice(0, limit);
             }
             setFilteredMedicines(local);
         };
