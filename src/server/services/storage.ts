@@ -6,14 +6,14 @@ import { createClient } from "@supabase/supabase-js";
  * and generating time-limited signed URLs to prevent public access.
  */
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://your-supabase-project.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "your-service-role-key";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET_NAME = process.env.STORAGE_BUCKET_NAME || "prescriptions";
 
 // Initialize Supabase Admin Client for secure server-side bucket access
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { persistSession: false },
-});
+const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : new Proxy({}, { get: () => { throw new Error("Supabase storage is not configured."); } }) as ReturnType<typeof createClient>;
 
 export interface UploadResult {
   storagePath: string;
@@ -87,4 +87,42 @@ export async function getPrescriptionSignedUrl(
   }
 
   return data.signedUrl;
+}
+
+export async function uploadPrivateDeliveryProof(
+  fileBuffer: Buffer,
+  fileName: string,
+  mimeType: string,
+  deliveryPartnerId: string,
+  orderId: string,
+  expiresInSeconds: number = 3600
+): Promise<UploadResult> {
+  const sanitizeFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+  const storagePath = `delivery-proof/${deliveryPartnerId}/${orderId}/${Date.now()}_${sanitizeFileName}`;
+  const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+    .from(BUCKET_NAME)
+    .upload(storagePath, fileBuffer, {
+      contentType: mimeType,
+      cacheControl: "private, max-age=3600",
+      upsert: false,
+    });
+
+  if (uploadError) {
+    console.error("Delivery proof upload failed:", uploadError);
+    throw new Error(`Failed to store delivery proof: ${uploadError.message}`);
+  }
+
+  const { data: signedData, error: signedError } = await supabaseAdmin.storage
+    .from(BUCKET_NAME)
+    .createSignedUrl(storagePath, expiresInSeconds);
+
+  if (signedError || !signedData?.signedUrl) {
+    throw new Error("Failed to generate secure access URL for delivery proof.");
+  }
+
+  return {
+    storagePath: uploadData.path,
+    signedUrl: signedData.signedUrl,
+    expiresInSeconds,
+  };
 }

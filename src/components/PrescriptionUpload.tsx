@@ -19,10 +19,31 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
 
     // Text state
     const [textInput, setTextInput] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+    const validateFile = (file: File) => {
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+        if (!allowedTypes.includes(file.type)) {
+            return "Only JPG, PNG, WEBP, or PDF prescriptions are supported.";
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            return "Prescription file must be 10MB or smaller.";
+        }
+        return null;
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            const validationError = validateFile(file);
+            if (validationError) {
+                setSelectedFile(null);
+                setPreviewUrl(null);
+                setError(validationError);
+                e.target.value = "";
+                return;
+            }
+            setSelectedFile(file);
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
             setError(null);
@@ -35,12 +56,12 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
 
         const formData = new FormData();
         if (activeTab === "image") {
-            if (!fileInputRef.current?.files?.[0]) {
-                setError("Please select an image first.");
+            if (!selectedFile) {
+                setError("Please select a valid prescription file first.");
                 setIsAnalyzing(false);
                 return;
             }
-            formData.append("file", fileInputRef.current.files[0]);
+            formData.append("file", selectedFile);
         } else {
             if (!textInput.trim()) {
                 setError("Please enter prescription text.");
@@ -58,7 +79,8 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
                 onResults(result.medicines);
             }
         } catch (err) {
-            setError("Something went wrong. Please try again.");
+            console.error("Prescription recognition failed:", err);
+            setError("Recognition failed. Check your connection and try again.");
         } finally {
             setIsAnalyzing(false);
         }
@@ -92,16 +114,24 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
                             type="file"
                             ref={fileInputRef}
                             onChange={handleFileChange}
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp,application/pdf"
                             className="hidden"
                         />
 
                         {previewUrl ? (
                             <div className="relative w-full max-w-sm mx-auto aspect-[3/4] bg-slate-50 rounded-xl overflow-hidden border border-slate-100">
-                                <img src={previewUrl} alt="Prescription Preview" className="w-full h-full object-contain" />
+                                {selectedFile?.type === "application/pdf" ? (
+                                    <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-slate-600">
+                                        <FileText size={48} className="text-primary" />
+                                        <span className="px-4 text-sm font-medium break-all">{selectedFile.name}</span>
+                                    </div>
+                                ) : (
+                                    <img src={previewUrl} alt="Prescription Preview" className="w-full h-full object-contain" />
+                                )}
                                 <button
                                     onClick={() => {
                                         setPreviewUrl(null);
+                                        setSelectedFile(null);
                                         if (fileInputRef.current) fileInputRef.current.value = "";
                                     }}
                                     className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full hover:bg-black/70"
@@ -119,7 +149,7 @@ export default function PrescriptionUpload({ onResults }: PrescriptionUploadProp
                                 </div>
                                 <div className="space-y-1">
                                     <p className="font-semibold text-foreground">Click to upload prescription</p>
-                                    <p className="text-sm text-muted-foreground">JPG, PNG up to 5MB</p>
+                                    <p className="text-sm text-muted-foreground">JPG, PNG, WEBP, or PDF up to 10MB</p>
                                 </div>
                             </div>
                         )}

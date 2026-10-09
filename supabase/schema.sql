@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Define custom ENUM types for rigid state management and performance
-CREATE TYPE public.user_role AS ENUM ('customer', 'pharmacist', 'admin');
+CREATE TYPE public.user_role AS ENUM ('customer', 'pharmacist', 'delivery_partner', 'admin');
 
 CREATE TYPE public.prescription_status AS ENUM ('pending', 'approved', 'rejected');
 
@@ -53,10 +53,13 @@ COMMENT ON TABLE public.users IS 'Profile table linking Supabase auth.users with
 CREATE TABLE public.addresses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    first_name TEXT,
+    last_name TEXT,
     street TEXT NOT NULL,
     city TEXT NOT NULL,
     state TEXT NOT NULL,
     postal_code TEXT NOT NULL,
+    phone TEXT,
     is_default BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -150,6 +153,30 @@ CREATE TABLE public.order_items (
 
 COMMENT ON TABLE public.order_items IS 'Line items linking ordered medicines and allocated batches.';
 
+-- -------------------------------------------------------------------------
+-- MISSING MEDICINE REQUESTS
+-- -------------------------------------------------------------------------
+CREATE TABLE public.missing_medicine_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    medicine_name TEXT NOT NULL CHECK (char_length(trim(medicine_name)) BETWEEN 3 AND 100),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'fulfilled', 'rejected')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE public.wishlists (
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    medicine_id UUID NOT NULL REFERENCES public.medicines(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, medicine_id)
+);
+
+CREATE INDEX idx_missing_medicine_requests_user_id
+    ON public.missing_medicine_requests(user_id);
+CREATE INDEX idx_missing_medicine_requests_status
+    ON public.missing_medicine_requests(status);
+
 
 -- =============================================================================
 -- 3. INDEXES FOR HIGH-FREQUENCY QUERIES
@@ -228,6 +255,14 @@ RETURNS BOOLEAN AS $$
     );
 $$ LANGUAGE sql SECURITY DEFINER SET search_path = public;
 
+CREATE OR REPLACE FUNCTION public.is_order_status_manager()
+RETURNS BOOLEAN AS $$
+    SELECT EXISTS (
+        SELECT 1 FROM public.users
+        WHERE id = auth.uid() AND role IN ('delivery_partner', 'admin')
+    );
+$$ LANGUAGE sql SECURITY DEFINER SET search_path = public;
+
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS BOOLEAN AS $$
     SELECT EXISTS (
@@ -268,6 +303,8 @@ ALTER TABLE public.batches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.prescriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.missing_medicine_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.wishlists ENABLE ROW LEVEL SECURITY;
 
 -- -----------------------------------------------------------------------------
 -- USERS POLICIES
@@ -350,7 +387,7 @@ CREATE POLICY "Staff can review and update prescriptions"
 -- Customers view their own orders; Pharmacists/Admins view all orders
 CREATE POLICY "Customers and Staff can view orders"
     ON public.orders FOR SELECT
-    USING (auth.uid() = user_id OR public.is_pharmacist_or_admin());
+    USING (auth.uid() = user_id OR public.is_pharmacist_or_admin() OR public.is_order_status_manager());
 
 -- Customers can insert their own orders
 CREATE POLICY "Customers can place orders"
@@ -362,11 +399,11 @@ CREATE POLICY "Customers can cancel own draft orders & Staff update any order"
     ON public.orders FOR UPDATE
     USING (
         (auth.uid() = user_id AND status IN ('rx_review', 'approved'))
-        OR public.is_pharmacist_or_admin()
+        OR public.is_order_status_manager()
     )
     WITH CHECK (
         (auth.uid() = user_id AND status = 'cancelled')
-        OR public.is_pharmacist_or_admin()
+        OR public.is_order_status_manager()
     );
 
 -- -----------------------------------------------------------------------------
@@ -396,3 +433,63 @@ CREATE POLICY "Staff can manage order items"
     ON public.order_items FOR ALL
     USING (public.is_pharmacist_or_admin())
     WITH CHECK (public.is_pharmacist_or_admin());
+
+CREATE POLICY "Customers can create own missing medicine requests"
+    ON public.missing_medicine_requests FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Customers can view own missing medicine requests"
+    ON public.missing_medicine_requests FOR SELECT
+    USING (auth.uid() = user_id OR public.is_pharmacist_or_admin());
+
+CREATE POLICY "Staff can manage missing medicine requests"
+    ON public.missing_medicine_requests FOR UPDATE
+    USING (public.is_pharmacist_or_admin())
+    WITH CHECK (public.is_pharmacist_or_admin());
+
+CREATE POLICY "Customers can manage own wishlist"
+    ON public.wishlists FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- -----------------------------------------------------------------------------
+-- PRIVATE PRESCRIPTION STORAGE POLICIES
+-- -----------------------------------------------------------------------------
+-- Files must use the private/{user_id}/... path convention enforced by the
+-- upload service. The service-role key used server-side bypasses these policies.
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('prescriptions', 'prescriptions', FALSE)
+ON CONFLICT (id) DO UPDATE SET public = FALSE;
+
+CREATE POLICY "Prescription owners can upload files"
+    ON storage.objects FOR INSERT
+    TO authenticated
+    WITH CHECK (
+        bucket_id = 'prescriptions'
+        AND (storage.foldername(name))[1] = 'private'
+        AND (storage.foldername(name))[2] = auth.uid()::text
+    );
+
+CREATE POLICY "Prescription owners and staff can read files"
+    ON storage.objects FOR SELECT
+    TO authenticated
+    USING (
+        bucket_id = 'prescriptions'
+        AND (
+            ((storage.foldername(name))[1] = 'private'
+                AND (storage.foldername(name))[2] = auth.uid()::text)
+            OR public.is_pharmacist_or_admin()
+        )
+    );
+
+CREATE POLICY "Prescription owners and staff can delete files"
+    ON storage.objects FOR DELETE
+    TO authenticated
+    USING (
+        bucket_id = 'prescriptions'
+        AND (
+            ((storage.foldername(name))[1] = 'private'
+                AND (storage.foldername(name))[2] = auth.uid()::text)
+            OR public.is_pharmacist_or_admin()
+        )
+    );

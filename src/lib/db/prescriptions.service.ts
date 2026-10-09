@@ -19,7 +19,7 @@ export interface PrescriptionDoc {
     customerId: string;
     customerEmail: string;
     orderId: string | null; // Linked order (if any)
-    imageUrl: string; // URL from S3/Cloudinary/Firebase Storage
+    imageUrl: string;
     originalFileName: string;
     mimeType: string;
     status: "PENDING" | "APPROVED" | "REJECTED";

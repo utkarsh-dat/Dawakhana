@@ -1,5 +1,4 @@
-import { db } from "../firebase";
-import { doc, getDoc, setDoc, arrayUnion } from "firebase/firestore";
+import supabase from "../supabaseClient";
 
 export interface TrackingInfo {
     orderId: string;
@@ -24,32 +23,25 @@ export async function getTrackingInfo(orderId: string): Promise<TrackingInfo | n
         return cached.data;
     }
 
-    if (!db) return null;
     try {
-        console.log(`[Cache Miss] Fetching tracking info from Firestore for order: ${orderId}`);
-        const docRef = doc(db, "tracking", orderId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            const data = docSnap.data() as TrackingInfo;
-            cache.set(orderId, { data, timestamp: Date.now() });
-            return data;
+        const { data, error } = await supabase.from("tracking").select("*").eq("order_id", orderId).maybeSingle();
+        if (error) throw error;
+        if (data) {
+            const info = { orderId, riderLocation: data.rider_location, markers: data.markers || [], updatedAt: data.updated_at } as TrackingInfo;
+            cache.set(orderId, { data: info, timestamp: Date.now() });
+            return info;
         }
     } catch (e) {
-        console.error("Firestore get error:", e);
+        console.error("Tracking read error:", e);
     }
     return null;
 }
 
 export async function updateRiderLocation(orderId: string, lat: number, lng: number): Promise<void> {
-    if (!db) return;
     try {
-        const docRef = doc(db, "tracking", orderId);
-        const updateData = {
-            orderId,
-            riderLocation: { lat, lng },
-            updatedAt: Date.now()
-        };
-        await setDoc(docRef, updateData, { merge: true });
+        const updateData = { order_id: orderId, rider_location: { lat, lng }, updated_at: Date.now() };
+        const { error } = await supabase.from("tracking").upsert(updateData, { onConflict: "order_id" });
+        if (error) throw error;
 
         // Update cache immediately (write-through)
         const cached = cache.get(orderId);
@@ -57,30 +49,27 @@ export async function updateRiderLocation(orderId: string, lat: number, lng: num
             const updatedInfo: TrackingInfo = {
                 ...cached.data,
                 riderLocation: { lat, lng },
-                updatedAt: updateData.updatedAt
+                updatedAt: updateData.updated_at
             };
             cache.set(orderId, { data: updatedInfo, timestamp: Date.now() });
         } else {
             cache.delete(orderId);
         }
     } catch (e) {
-        console.error("Firestore set error:", e);
+        console.error("Tracking location update error:", e);
     }
 }
 
 export async function addRouteMarker(orderId: string, lat: number, lng: number): Promise<void> {
-    if (!db) return;
     try {
-        const docRef = doc(db, "tracking", orderId);
-        await setDoc(docRef, {
-            orderId,
-            markers: arrayUnion({ lat, lng }),
-            updatedAt: Date.now()
-        }, { merge: true });
+        const current = await getTrackingInfo(orderId);
+        const markers = [...(current?.markers || []), { lat, lng }];
+        const { error } = await supabase.from("tracking").upsert({ order_id: orderId, markers, updated_at: Date.now() }, { onConflict: "order_id" });
+        if (error) throw error;
 
         // Invalidate cache to force fetch the updated array next time
         cache.delete(orderId);
     } catch (e) {
-        console.error("Firestore union error:", e);
+        console.error("Tracking marker update error:", e);
     }
 }

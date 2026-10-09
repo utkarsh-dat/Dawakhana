@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPharmacistReviewQueue } from "@/server/services/pharmacistReview";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || "fallback_super_secret_jwt_key_32bytes!";
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET;
 
 /**
  * GET /api/v1/pharmacist/prescriptions/queue
@@ -11,6 +11,9 @@ const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || 
  */
 export async function GET(request: NextRequest) {
   try {
+    if (!JWT_SECRET) {
+      return NextResponse.json({ success: false, error: "Pharmacist authentication is not configured." }, { status: 503 });
+    }
     // 1. Authenticate & Enforce Pharmacist Role
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

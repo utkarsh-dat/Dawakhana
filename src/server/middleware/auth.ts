@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export type UserRole = "customer" | "pharmacist" | "admin";
+export type UserRole = "customer" | "pharmacist" | "delivery_partner" | "admin";
 
 export interface AuthenticatedUser {
   id: string;
@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || "fallback_super_secret_jwt_key_32bytes!";
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET;
 
 /**
  * Authentication Middleware
@@ -37,6 +37,9 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
   const token = authHeader.split(" ")[1];
 
   try {
+    if (!JWT_SECRET) {
+      throw new Error("JWT authentication is not configured.");
+    }
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     
     // Extract payload fields (compatible with standard JWT & Supabase auth tokens)

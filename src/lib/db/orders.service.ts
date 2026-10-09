@@ -23,6 +23,8 @@ export const ORDER_STATUS = {
     PACKED: "PACKED",
     OUT_FOR_DELIVERY: "OUT_FOR_DELIVERY",
     DELIVERED: "DELIVERED",
+    FAILED_DELIVERY: "FAILED_DELIVERY",
+    RTO: "RTO",
     CANCELLED: "CANCELLED",
 } as const;
 
@@ -40,7 +42,9 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
     [ORDER_STATUS.PENDING_RX_VERIFICATION]: [ORDER_STATUS.ORDER_PLACED, ORDER_STATUS.CANCELLED],
     [ORDER_STATUS.ORDER_PLACED]: [ORDER_STATUS.PACKED, ORDER_STATUS.CANCELLED],
     [ORDER_STATUS.PACKED]: [ORDER_STATUS.OUT_FOR_DELIVERY, ORDER_STATUS.CANCELLED],
-    [ORDER_STATUS.OUT_FOR_DELIVERY]: [ORDER_STATUS.DELIVERED],
+    [ORDER_STATUS.OUT_FOR_DELIVERY]: [ORDER_STATUS.DELIVERED, ORDER_STATUS.FAILED_DELIVERY],
+    [ORDER_STATUS.FAILED_DELIVERY]: [ORDER_STATUS.OUT_FOR_DELIVERY, ORDER_STATUS.RTO],
+    [ORDER_STATUS.RTO]: [],
     [ORDER_STATUS.DELIVERED]: [],
     [ORDER_STATUS.CANCELLED]: [],
 };
@@ -81,7 +85,7 @@ export interface OrderDoc {
     deliveryFee: number;
     total: number;
     deliveryAddress: DeliveryAddress;
-    createdAt: any; // Firestore serverTimestamp
+    createdAt: any;
     updatedAt: any;
     statusHistory: { status: string; timestamp: string; updatedBy: string }[];
 }
@@ -108,7 +112,7 @@ export interface CreateOrderInput {
  * Create a new order with stock reservation and prescription enforcement.
  * 
  * Critical safeguards implemented:
- * 1. Atomic stock updates via Firestore transactions
+ * 1. Stock updates through the Supabase database layer
  * 2. Prescription requirement check
  * 3. Order status set based on prescription needs
  */
@@ -414,4 +418,43 @@ export async function getPendingRxOrders(): Promise<OrderDoc[]> {
 
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as OrderDoc[];
+}
+
+/**
+ * Get orders assigned to a delivery partner.
+ */
+export async function getOrdersByDeliveryPartner(deliveryPartnerId: string): Promise<OrderDoc[]> {
+    if (!db) throw new Error("Database not initialized");
+
+    const q = query(
+        collection(db, COLLECTIONS.ORDERS),
+        where("deliveryPartnerId", "==", deliveryPartnerId),
+        orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(orderDoc => ({ id: orderDoc.id, ...orderDoc.data() })) as OrderDoc[];
+}
+
+export async function attachDeliveryProof(
+    orderId: string,
+    deliveryPartnerId: string,
+    proofStoragePath: string
+): Promise<void> {
+    if (!db) throw new Error("Database not initialized");
+
+    const orderRef = doc(db, COLLECTIONS.ORDERS, orderId);
+    const orderSnap = await getDoc(orderRef);
+    if (!orderSnap.exists()) throw new Error("Order not found");
+
+    const order = orderSnap.data() as OrderDoc & { deliveryPartnerId?: string };
+    if (order.deliveryPartnerId !== deliveryPartnerId) {
+        throw new Error("This order is not assigned to the delivery partner.");
+    }
+
+    await updateDoc(orderRef, {
+        deliveryProofPath: proofStoragePath,
+        deliveryProofUploadedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+    });
 }

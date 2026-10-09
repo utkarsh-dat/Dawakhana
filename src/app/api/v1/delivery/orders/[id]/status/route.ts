@@ -1,7 +1,7 @@
 /**
  * PATCH /api/v1/delivery/orders/[id]/status — Update delivery tracking state (Delivery Partner)
  * 
- * Body: { status: "OUT_FOR_DELIVERY" | "DELIVERED", lat?: number, lng?: number }
+ * Body: { status: "OUT_FOR_DELIVERY" | "DELIVERED" | "FAILED_DELIVERY" | "RTO", lat?: number, lng?: number }
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -23,7 +23,7 @@ export async function PATCH(
         const { status, lat, lng } = body;
 
         // Only allow delivery-relevant status transitions
-        const allowedStatuses: OrderStatus[] = ["OUT_FOR_DELIVERY", "DELIVERED"];
+        const allowedStatuses: OrderStatus[] = ["OUT_FOR_DELIVERY", "DELIVERED", "FAILED_DELIVERY", "RTO"];
         if (!status || !allowedStatuses.includes(status)) {
             return NextResponse.json(
                 { error: `Invalid status. Allowed: ${allowedStatuses.join(", ")}` },

@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://your-supabase-project.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "your-service-role-key";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { persistSession: false },
-});
+const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : new Proxy({}, { get: () => { throw new Error("Supabase shipping is not configured."); } }) as ReturnType<typeof createClient>;
 
 export interface AWBGenerationResult {
   orderId: string;
@@ -51,11 +51,39 @@ export async function createShippingOrderAndGenerateAWB(orderId: string): Promis
     throw new Error(`Cannot ship cancelled order #${orderId}.`);
   }
 
-  // 2. Call Courier API (Shiprocket / Delhivery SDK Integration)
-  // In production, this posts order details to courier REST endpoint.
-  const courierName = process.env.PREFERRED_COURIER || "Delhivery Express";
-  const awbNumber = `DEL${Date.now()}${Math.floor(Math.random() * 1000)}`;
-  const shippingLabelUrl = `${SUPABASE_URL}/storage/v1/object/public/shipping_labels/label_${orderId}.pdf`;
+  const courierApiUrl = process.env.COURIER_API_URL;
+  const courierApiKey = process.env.COURIER_API_KEY;
+  const courierName = process.env.PREFERRED_COURIER;
+
+  if (!courierApiUrl || !courierApiKey || !courierName) {
+    throw new Error("Courier integration is not configured. Refusing to create a demo AWB.");
+  }
+
+  // The configured courier adapter must return an AWB and label URL. No fake
+  // tracking numbers are generated when the provider is unavailable.
+  const courierResponse = await fetch(courierApiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${courierApiKey}`,
+    },
+    body: JSON.stringify({ orderId, order }),
+  });
+
+  if (!courierResponse.ok) {
+    throw new Error(`Courier API failed with status ${courierResponse.status}.`);
+  }
+
+  const courierData = await courierResponse.json() as {
+    awbNumber?: string;
+    shippingLabelUrl?: string;
+  };
+  if (!courierData.awbNumber || !courierData.shippingLabelUrl) {
+    throw new Error("Courier API response is missing awbNumber or shippingLabelUrl.");
+  }
+
+  const awbNumber = courierData.awbNumber;
+  const shippingLabelUrl = courierData.shippingLabelUrl;
 
   const initialTrackingEvent = {
     status: "shipped",
@@ -105,10 +133,19 @@ export async function processShippingWebhookUpdate(payload: {
 
   // Map courier status to order_status ENUM
   let targetOrderStatus: string = "shipped";
-  if (currentStatus.toLowerCase() === "delivered") {
+  const normalizedStatus = currentStatus.toLowerCase().replace(/[\s-]+/g, "_");
+  if (normalizedStatus === "delivered") {
     targetOrderStatus = "delivered";
-  } else if (currentStatus.toLowerCase() === "cancelled" || currentStatus.toLowerCase() === "returned") {
+  } else if (normalizedStatus === "failed_delivery") {
+    targetOrderStatus = "failed_delivery";
+  } else if (normalizedStatus === "rto" || normalizedStatus === "returned" || normalizedStatus === "return_to_origin") {
+    targetOrderStatus = "rto";
+  } else if (normalizedStatus === "cancelled" || normalizedStatus === "canceled") {
     targetOrderStatus = "cancelled";
+  } else if (normalizedStatus === "out_for_delivery") {
+    targetOrderStatus = "out_for_delivery";
+  } else if (normalizedStatus === "in_transit" || normalizedStatus === "shipped") {
+    targetOrderStatus = "shipped";
   }
 
   // 1. Fetch Order by AWB

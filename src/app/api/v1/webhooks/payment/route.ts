@@ -2,19 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://your-supabase-project.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "your-service-role-key";
-const PAYMENT_WEBHOOK_SECRET = process.env.PAYMENT_WEBHOOK_SECRET || process.env.RAZORPAY_WEBHOOK_SECRET || "whsec_test_secret_12345";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const PAYMENT_WEBHOOK_SECRET = process.env.PAYMENT_WEBHOOK_SECRET || process.env.RAZORPAY_WEBHOOK_SECRET;
 
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
-});
+}) : null;
 
 /**
  * POST /api/v1/webhooks/payment — Idempotent Payment Webhook Endpoint
  */
 export async function POST(request: NextRequest) {
   try {
+    if (!PAYMENT_WEBHOOK_SECRET || !supabaseAdmin) {
+      return NextResponse.json({ success: false, error: "Payment webhook is not configured." }, { status: 503 });
+    }
     const signature = request.headers.get("x-razorpay-signature") || request.headers.get("stripe-signature");
 
     if (!signature) {

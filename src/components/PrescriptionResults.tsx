@@ -3,10 +3,9 @@
 import React, { useState } from "react";
 import { Medicine, medicines } from "@/lib/medicines";
 import { useCart } from "@/context/CartContext";
-import { db } from "@/lib/firebase";
-import { doc, setDoc, increment, serverTimestamp } from "firebase/firestore";
 import { Check, AlertCircle, ShoppingCart, Plus, Edit2, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 interface PrescriptionResultsProps {
     recognizedNames: string[];
@@ -40,39 +39,9 @@ function looksLikeMedicine(name: string): boolean {
     return true;
 }
 
-// Log missing medicine to Firebase for admin tracking
-async function logMissingMedicine(medicineName: string) {
-    console.log("logMissingMedicine called with:", medicineName);
-
-    if (!db) {
-        console.log("Firebase db not available");
-        return;
-    }
-
-    // Check if it looks like a medicine
-    if (!looksLikeMedicine(medicineName)) {
-        console.log(`Skipping "${medicineName}" - doesn't look like a medicine`);
-        return;
-    }
-
-    try {
-        const docId = medicineName.toLowerCase().replace(/[^a-z0-9]/g, "_").substring(0, 100);
-        const docRef = doc(db, "missingMedicineRequests", docId);
-
-        await setDoc(docRef, {
-            name: medicineName,
-            count: increment(1),
-            lastRequested: serverTimestamp(),
-        }, { merge: true });
-
-        console.log(`✅ Logged missing medicine: "${medicineName}"`);
-    } catch (error) {
-        console.error("Failed to log missing medicine:", error);
-    }
-}
-
 export default function PrescriptionResults({ recognizedNames, onReset }: PrescriptionResultsProps) {
     const { addToCart } = useCart();
+    const { user } = useAuth();
     const [selectedItems, setSelectedItems] = useState<Medicine[]>([]);
     const [requestedItems, setRequestedItems] = useState<string[]>([]);  // For Not Found medicines
     const [editedNames, setEditedNames] = useState<string[]>(recognizedNames);
@@ -129,9 +98,26 @@ export default function PrescriptionResults({ recognizedNames, onReset }: Prescr
         // Add selected items to cart
         selectedItems.forEach(item => addToCart(item));
 
-        // Log only SELECTED missing medicines to Firebase for admin
+        if (requestedItems.length > 0 && !user) {
+            alert("Please sign in to request missing medicines.");
+            return;
+        }
+
         for (const medicineName of requestedItems) {
-            await logMissingMedicine(medicineName);
+            if (!looksLikeMedicine(medicineName)) continue;
+            const response = await fetch("/api/v1/missing-medicine-requests", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-User-UID": user!.id,
+                    "X-User-Email": user!.email || "",
+                },
+                body: JSON.stringify({ medicineName }),
+            });
+            if (!response.ok) {
+                const result = await response.json().catch(() => ({}));
+                throw new Error(result.error || `Failed to request ${medicineName}.`);
+            }
         }
 
         const message = [];

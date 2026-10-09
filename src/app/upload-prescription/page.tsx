@@ -24,6 +24,9 @@ export default function UploadPrescriptionPage() {
                 <p className="text-primary-foreground/90 text-lg max-w-2xl mx-auto">
                     Upload an image or type your prescription. Our AI will identify the medicines and check availability instantly.
                 </p>
+                <Link href="/prescriptions" className="mt-4 inline-block text-sm font-semibold text-white underline underline-offset-4">
+                    View my prescription review status
+                </Link>
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-8 relative z-10">

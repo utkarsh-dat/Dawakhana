@@ -5,11 +5,11 @@ export async function handleGetTracking(orderId: string) {
     try {
         const info = await service.getTrackingInfo(orderId);
         if (!info) {
-            // Return defaults if not found in Firestore yet
             return NextResponse.json({
                 orderId,
-                riderLocation: { lat: 19.0820, lng: 72.8680 },
-                markers: [{ lat: 19.0760, lng: 72.8777 }]
+                riderLocation: null,
+                markers: [],
+                updatedAt: null,
             });
         }
         return NextResponse.json(info);

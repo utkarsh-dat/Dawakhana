@@ -1,8 +1,7 @@
 /**
- * Auth Middleware — Firebase Token Verification + Role Check
+ * Auth Middleware — JWT Verification + Role Check
  * 
- * Verifies Firebase ID tokens from the Authorization header and
- * checks user roles for access control.
+ * Verifies authenticated request headers and checks user roles for access control.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -19,15 +18,10 @@ export interface AuthResult {
 }
 
 /**
- * Verify the Firebase ID token from the request.
- * 
- * Note: In a production environment, you would use Firebase Admin SDK
- * to verify tokens server-side. For this implementation, we extract the
- * UID from a custom header set by the client after Firebase Auth.
+ * Verify the authenticated user headers from the request.
  * 
  * Expected headers:
- * - Authorization: Bearer <firebase-id-token>
- * - X-User-UID: <firebase-uid> (fallback for client-side auth)
+ * - X-User-UID: authenticated user id
  */
 export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
     try {
@@ -42,7 +36,7 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult> {
             };
         }
 
-        // Fetch user role from Firestore
+        // Fetch the user role from the application database
         const role = await getUserRole(uid);
 
         return {

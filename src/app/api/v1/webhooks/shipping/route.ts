@@ -1,23 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processShippingWebhookUpdate } from "@/server/services/shipping";
+import crypto from "crypto";
 
-const COURIER_WEBHOOK_SECRET = process.env.COURIER_WEBHOOK_SECRET || "courier_whsec_secret_67890";
+const COURIER_WEBHOOK_SECRET = process.env.COURIER_WEBHOOK_SECRET;
 
 /**
  * POST /api/v1/webhooks/shipping — Courier Logistics Tracking Webhook
  */
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("x-courier-secret");
+    if (!COURIER_WEBHOOK_SECRET) {
+      return NextResponse.json({ success: false, error: "Courier webhook is not configured." }, { status: 503 });
+    }
+    const signature = request.headers.get("x-courier-signature");
+    const rawBody = await request.text();
+    const expectedSignature = crypto
+      .createHmac("sha256", COURIER_WEBHOOK_SECRET)
+      .update(rawBody)
+      .digest("hex");
 
-    if (authHeader !== COURIER_WEBHOOK_SECRET && process.env.NODE_ENV === "production") {
+    const providedSignature = signature ? Buffer.from(signature, "utf8") : null;
+    const expectedSignatureBuffer = Buffer.from(expectedSignature, "utf8");
+    const signaturesMatch = Boolean(
+      providedSignature &&
+      providedSignature.length === expectedSignatureBuffer.length &&
+      crypto.timingSafeEqual(providedSignature, expectedSignatureBuffer)
+    );
+
+    if (!signaturesMatch) {
       return NextResponse.json(
         { success: false, error: "Unauthorized courier webhook request." },
         { status: 401 }
       );
     }
 
-    const body = await request.json();
+    const body = JSON.parse(rawBody);
     const { awbNumber, currentStatus, location, remarks } = body;
 
     if (!awbNumber || !currentStatus) {

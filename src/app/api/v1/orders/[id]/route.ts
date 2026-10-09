@@ -1,11 +1,11 @@
 /**
  * GET   /api/v1/orders/[id]        — Get order details
- * PATCH /api/v1/orders/[id]        — Update order status (Admin)
+ * PATCH /api/v1/orders/[id]        — Update order status (Admin/Delivery)
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db/connection";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "@/lib/db/connection";
 import { transitionOrderStatus, OrderDoc, OrderStatus } from "@/lib/db/orders.service";
 import { verifyAuth, requireRole } from "@/lib/middleware/auth";
 import { COLLECTIONS } from "@/lib/db/connection";
@@ -54,8 +54,8 @@ export async function PATCH(
     try {
         const { id } = await params;
 
-        // Only admin can update order status
-        const { auth, response } = await requireRole(request, ["admin", "pharmacist"]);
+        // Only admins and delivery partners can update order status.
+        const { auth, response } = await requireRole(request, ["admin", "delivery_partner"]);
         if (response) return response;
 
         const body = await request.json();

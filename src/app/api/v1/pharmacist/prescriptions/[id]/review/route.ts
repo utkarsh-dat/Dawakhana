@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { processPrescriptionReview } from "@/server/services/pharmacistReview";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || "fallback_super_secret_jwt_key_32bytes!";
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET;
 
 /**
  * POST /api/v1/pharmacist/prescriptions/[id]/review
@@ -14,6 +14,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!JWT_SECRET) {
+      return NextResponse.json({ success: false, error: "Pharmacist authentication is not configured." }, { status: 503 });
+    }
     const { id: prescriptionId } = await params;
 
     // 1. Authenticate & Enforce Pharmacist Role

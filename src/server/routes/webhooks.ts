@@ -5,14 +5,14 @@ import { processShippingWebhookUpdate } from "../services/shipping";
 
 const router = Router();
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://your-supabase-project.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "your-service-role-key";
-const PAYMENT_WEBHOOK_SECRET = process.env.PAYMENT_WEBHOOK_SECRET || process.env.RAZORPAY_WEBHOOK_SECRET || "whsec_test_secret_12345";
-const COURIER_WEBHOOK_SECRET = process.env.COURIER_WEBHOOK_SECRET || "courier_whsec_secret_67890";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const PAYMENT_WEBHOOK_SECRET = process.env.PAYMENT_WEBHOOK_SECRET || process.env.RAZORPAY_WEBHOOK_SECRET;
+const COURIER_WEBHOOK_SECRET = process.env.COURIER_WEBHOOK_SECRET;
 
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
-});
+}) : null;
 
 /**
  * Helper function to verify HMAC SHA256 signature
@@ -45,6 +45,9 @@ router.post(
   expressRawBodyParser,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (!PAYMENT_WEBHOOK_SECRET || !supabaseAdmin) {
+        return res.status(503).json({ success: false, error: "Payment webhook is not configured." });
+      }
       const signature = (req.headers["x-razorpay-signature"] || req.headers["stripe-signature"]) as string;
 
       if (!signature) {
@@ -116,6 +119,9 @@ router.post(
  */
 router.post("/shipping", async (req: Request, res: Response, next: NextFunction) => {
   try {
+    if (!COURIER_WEBHOOK_SECRET) {
+      return res.status(503).json({ success: false, error: "Courier webhook is not configured." });
+    }
     const authHeader = req.headers["x-courier-secret"];
 
     if (authHeader !== COURIER_WEBHOOK_SECRET && process.env.NODE_ENV === "production") {

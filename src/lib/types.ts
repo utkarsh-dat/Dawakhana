@@ -1,4 +1,3 @@
-import { Timestamp } from "firebase/firestore";
 import { Medicine } from "./medicines";
 
 export interface CartItem extends Medicine {
@@ -22,6 +21,16 @@ export interface Order {
     total: number;
     status: "Pending" | "Processing" | "In Transit" | "Delivered" | "Pending Verification" | "Order Placed" | "Confirmed" | "Shipped" | "Cancelled";
     address: DeliveryAddress;
-    createdAt: Timestamp;
+    createdAt: Date | string | { seconds: number };
     paymentMethod: "Card" | "Google Pay" | "COD";
+    trackingHistory?: TrackingEvent[];
+    awbNumber?: string;
+    courierName?: string;
+}
+
+export interface TrackingEvent {
+    status: string;
+    location?: string;
+    remarks?: string;
+    timestamp: string;
 }

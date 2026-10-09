@@ -74,9 +74,9 @@ export default function Home() {
                 <Link href="/upload-prescription" className="px-8 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20">
                   Upload Now
                 </Link>
-                <button className="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition-colors backdrop-blur-md">
+                <Link href="/how-it-works" className="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition-colors backdrop-blur-md">
                   How it Works
-                </button>
+                </Link>
               </div>
             </div>
           </div>

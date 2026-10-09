@@ -1,12 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 import { getPrescriptionSignedUrl } from "./storage";
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://your-supabase-project.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "your-service-role-key";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { persistSession: false },
-});
+const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : new Proxy({}, { get: () => { throw new Error("Supabase pharmacist review is not configured."); } }) as ReturnType<typeof createClient>;
 
 export interface ReviewQueueItem {
   id: string;

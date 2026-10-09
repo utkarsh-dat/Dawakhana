@@ -1,14 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-    User,
-    signInWithPopup,
-    signOut,
-    onAuthStateChanged
-} from "firebase/auth";
-import { auth, googleProvider, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { User } from "@supabase/supabase-js";
+import supabase from "@/lib/supabaseClient";
 
 const ADMIN_EMAILS = ["vickynishad011@gmail.com", "utkarshparmar2367@gmail.com"];
 const PHARMACIST_EMAILS = ["pharmacist@dawakhana.com"];
@@ -34,134 +28,71 @@ const AuthContext = createContext<AuthContextType>({
     isPharmacist: false,
     isDeliveryPartner: false,
     loading: true,
-    loginWithGoogle: async () => { },
-    logout: async () => { },
+    loginWithGoogle: async () => undefined,
+    logout: async () => undefined,
 });
 
 export const useAuth = () => useContext(AuthContext);
+
+function roleForEmail(email: string | undefined): UserRole {
+    if (email && ADMIN_EMAILS.includes(email)) return "admin";
+    if (email && PHARMACIST_EMAILS.includes(email)) return "pharmacist";
+    if (email && DELIVERY_EMAILS.includes(email)) return "delivery_partner";
+    return "customer";
+}
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [role, setRole] = useState<UserRole>("customer");
     const [loading, setLoading] = useState(true);
 
-    const isAdmin = role === "admin";
-    const isPharmacist = role === "pharmacist";
-    const isDeliveryPartner = role === "delivery_partner";
-
     useEffect(() => {
-        if (!auth) {
-            console.warn("AuthContext: Firebase Auth is not initialized. Check your environment variables.");
-            setLoading(false);
-            return;
-        }
-
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        const loadProfile = async (currentUser: User | null) => {
             setUser(currentUser);
-            if (currentUser) {
-                try {
-                    // Sync profile and fetch role from Firestore
-                    const userRef = doc(db, "users", currentUser.uid);
-                    const userSnap = await getDoc(userRef);
-
-                    if (userSnap.exists()) {
-                        const data = userSnap.data();
-                        setRole(data.role || "customer");
-                    } else {
-                        // Create default user profile
-                        let initialRole: UserRole = "customer";
-                        if (ADMIN_EMAILS.includes(currentUser.email || "")) {
-                            initialRole = "admin";
-                        } else if (PHARMACIST_EMAILS.includes(currentUser.email || "")) {
-                            initialRole = "pharmacist";
-                        } else if (DELIVERY_EMAILS.includes(currentUser.email || "")) {
-                            initialRole = "delivery_partner";
-                        }
-
-                        await setDoc(userRef, {
-                            email: currentUser.email || "",
-                            displayName: currentUser.displayName || "",
-                            photoURL: currentUser.photoURL || null,
-                            role: initialRole,
-                            isActive: true,
-                            createdAt: serverTimestamp(),
-                            updatedAt: serverTimestamp(),
-                        });
-                        setRole(initialRole);
-                    }
-                } catch (error) {
-                    console.error("Error fetching/syncing user profile:", error);
-                    // Fallback to email list check on failure
-                    if (ADMIN_EMAILS.includes(currentUser.email || "")) {
-                        setRole("admin");
-                    } else {
-                        setRole("customer");
-                    }
-                }
-            } else {
+            if (!currentUser) {
                 setRole("customer");
+                setLoading(false);
+                return;
             }
-            setLoading(false);
-        });
 
-        return () => unsubscribe();
+            const { data } = await supabase
+                .from("users")
+                .select("role")
+                .eq("id", currentUser.id)
+                .maybeSingle();
+            setRole((data?.role as UserRole | undefined) || roleForEmail(currentUser.email));
+            setLoading(false);
+        };
+
+        supabase.auth.getSession().then(({ data }) => loadProfile(data.session?.user || null));
+        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+            void loadProfile(session?.user || null);
+        });
+        return () => listener.subscription.unsubscribe();
     }, []);
 
     const loginWithGoogle = async () => {
-        if (!auth) {
-            alert("Authentication is not configured. Please check site settings.");
-            return;
-        }
-        try {
-            await signInWithPopup(auth, googleProvider);
-        } catch (error) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const err = error as any;
-
-            // Handle specific Firebase Auth errors
-            if (err?.code === 'auth/popup-closed-by-user') {
-                console.warn("User closed the Google auth login popup window.");
-                alert("Login cancelled. You closed the popup.");
-            } else if (err?.code === 'auth/cancelled-popup-request') {
-                console.warn("Google auth popup request was cancelled (duplicate request).");
-            } else {
-                console.error("Error logging in with Google:", error);
-                if (err?.code === 'auth/unauthorized-domain') {
-                    alert("Login failed: This domain is not authorized in Firebase Console. Please add it to Authentication > Settings > Authorized Domains.");
-                } else if (err?.code === 'auth/operation-not-allowed') {
-                    alert("Login failed: Google/Email provider is not enabled in Firebase Console.");
-                } else {
-                    alert(`Login failed: ${err.message || "Unknown error"}`);
-                    throw error;
-                }
-            }
-        }
+        const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+        if (error) throw error;
     };
 
     const logout = async () => {
-        if (!auth) return;
-
-        try {
-            await signOut(auth);
-        } catch (error) {
-            console.error("Error logging out:", error);
-            throw error;
-        }
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
     };
 
     return (
         <AuthContext.Provider value={{
             user,
             role,
-            isAdmin,
-            isPharmacist,
-            isDeliveryPartner,
+            isAdmin: role === "admin",
+            isPharmacist: role === "pharmacist",
+            isDeliveryPartner: role === "delivery_partner",
             loading,
             loginWithGoogle,
-            logout
+            logout,
         }}>
             {!loading && children}
         </AuthContext.Provider>
     );
 };
-

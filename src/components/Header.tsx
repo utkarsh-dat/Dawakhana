@@ -63,6 +63,8 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                         <Link href="/catalog" className="text-muted-foreground hover:text-primary transition-colors">Catalog</Link>
                         <Link href="/orders" className="text-muted-foreground hover:text-primary transition-colors">My Orders</Link>
                         <Link href="/upload-prescription" className="text-muted-foreground hover:text-primary transition-colors">Upload Prescription</Link>
+                        <Link href="/wishlist" className="text-muted-foreground hover:text-primary transition-colors">Wishlist</Link>
+                        <Link href="/addresses" className="text-muted-foreground hover:text-primary transition-colors">Addresses</Link>
                         {isAdmin && (
                             <Link href="/admin" className="text-primary font-semibold hover:text-primary/80 transition-colors">
                                 Admin
@@ -101,10 +103,10 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                                         onClick={() => setShowUserMenu(!showUserMenu)}
                                         className="p-1 hover:bg-muted rounded-full transition-colors"
                                     >
-                                        {user.photoURL ? (
+                                        {user.user_metadata.avatar_url ? (
                                             <img
-                                                src={user.photoURL}
-                                                alt={user.displayName || "User"}
+                                                src={user.user_metadata.avatar_url}
+                                                alt={user.user_metadata.full_name || "User"}
                                                 className="w-8 h-8 rounded-full border border-border"
                                             />
                                         ) : (
@@ -124,7 +126,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                                                 className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50"
                                             >
                                                 <div className="p-3 border-b border-slate-100">
-                                                    <p className="font-medium text-sm truncate">{user.displayName || "User"}</p>
+                                                    <p className="font-medium text-sm truncate">{user.user_metadata.full_name || "User"}</p>
                                                     <p className="text-xs text-slate-500 truncate">{user.email}</p>
                                                 </div>
                                                 <div className="p-1">
@@ -214,10 +216,10 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                             {/* User Info (if logged in) */}
                             {user && (
                                 <div className="p-4 border-b border-slate-100 flex items-center gap-3">
-                                    {user.photoURL ? (
+                                    {user.user_metadata.avatar_url ? (
                                         <img
-                                            src={user.photoURL}
-                                            alt={user.displayName || "User"}
+                                            src={user.user_metadata.avatar_url}
+                                            alt={user.user_metadata.full_name || "User"}
                                             className="w-10 h-10 rounded-full border border-border"
                                         />
                                     ) : (
@@ -226,7 +228,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                                         </div>
                                     )}
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-sm truncate">{user.displayName || "User"}</p>
+                                        <p className="font-medium text-sm truncate">{user.user_metadata.full_name || "User"}</p>
                                         <p className="text-xs text-slate-500 truncate">{user.email}</p>
                                     </div>
                                 </div>

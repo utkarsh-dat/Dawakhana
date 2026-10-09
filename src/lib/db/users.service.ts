@@ -7,7 +7,7 @@
  * - delivery_partner
  * - admin
  * 
- * Uses Firebase Auth for identity + Firestore for role/profile data.
+ * Uses the application database for identity and role/profile data.
  */
 
 import {

@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Medicine } from "@/lib/medicines";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
+import Link from "next/link";
 
 interface MedicineCardProps {
     medicine: Medicine;
@@ -27,7 +28,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
             className="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-100 premium-shadow transition-all"
         >
             {/* Image Container - Responsive height */}
-            <div className="relative h-36 xs:h-40 sm:h-48 w-full overflow-hidden bg-slate-50">
+            <Link href={`/medicines/${medicine.id}`} className="relative block h-36 xs:h-40 sm:h-48 w-full overflow-hidden bg-slate-50" aria-label={`View ${medicine.name}`}>
                 <img
                     src={medicine.image}
                     alt={medicine.name}
@@ -39,7 +40,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
                         {medicine.inStock ? "In Stock" : "Out of Stock"}
                     </span>
                 </div>
-            </div>
+            </Link>
 
             {/* Content - Responsive padding */}
             <div className="p-4 sm:p-6 space-y-2 sm:space-y-3">
@@ -54,9 +55,9 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
                     </div>
                 </div>
 
-                <h3 className="font-bold text-sm sm:text-lg text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                <Link href={`/medicines/${medicine.id}`} className="block font-bold text-sm sm:text-lg text-foreground line-clamp-1 group-hover:text-primary transition-colors">
                     {medicine.name}
-                </h3>
+                </Link>
 
                 <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 min-h-[32px] sm:min-h-[40px]">
                     {medicine.description}

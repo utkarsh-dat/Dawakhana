@@ -56,7 +56,7 @@ const CatalogGrid = ({ limit, searchQuery }: CatalogGridProps) => {
                     runLocalFallback();
                 }
             } catch (err) {
-                console.warn("Firestore fetch failed, falling back to static medicines list:", err);
+                console.error("Supabase fetch failed, falling back to static medicines list:", err);
                 runLocalFallback();
             } finally {
                 setLoading(false);

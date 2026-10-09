@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://your-supabase-project.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "your-service-role-key";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { persistSession: false },
-});
+const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : new Proxy({}, { get: () => { throw new Error("Supabase orders are not configured."); } }) as ReturnType<typeof createClient>;
 
 export interface OrderItemRequest {
   medicineId: string;
@@ -29,9 +29,14 @@ export interface AllocatedOrderItem {
 export interface PlaceOrderResult {
   orderId: string;
   status: string;
+  subtotal: number;
+  deliveryFee: number;
   totalAmount: number;
   allocatedItems: AllocatedOrderItem[];
 }
+
+const FREE_DELIVERY_THRESHOLD = 200;
+const STANDARD_DELIVERY_FEE = 40;
 
 /**
  * Executes FEFO Inventory Deduction and Order Placement within an ACID Database Transaction.
@@ -69,10 +74,15 @@ export async function placeOrderWithFEFO(input: PlaceOrderInput): Promise<PlaceO
 
   const medicineMap = new Map<string, { brandName: string; requiresRx: boolean; basePrice: number }>();
   for (const med of medicines) {
+    const basePrice = Number(med.base_price);
+    if (!Number.isFinite(basePrice) || basePrice < 0) {
+      throw new Error(`Invalid server price configured for medicine '${med.id}'.`);
+    }
+
     medicineMap.set(med.id, {
       brandName: med.brand_name,
       requiresRx: med.requires_prescription,
-      basePrice: Number(med.base_price),
+      basePrice,
     });
   }
 
@@ -98,7 +108,7 @@ export async function placeOrderWithFEFO(input: PlaceOrderInput): Promise<PlaceO
     // Verify prescription in database
     const { data: rxRecord, error: rxErr } = await supabaseAdmin
       .from("prescriptions")
-      .select("id, user_id, status")
+      .select("id, user_id, status, expires_at")
       .eq("id", prescriptionId)
       .single();
 
@@ -114,6 +124,10 @@ export async function placeOrderWithFEFO(input: PlaceOrderInput): Promise<PlaceO
       throw new Error(
         `Prescription status is '${rxRecord.status}'. An 'approved' prescription is required to purchase Rx-restricted medicines.`
       );
+    }
+
+    if (rxRecord.expires_at && new Date(rxRecord.expires_at) <= new Date()) {
+      throw new Error("Prescription has expired. Please upload a current prescription.");
     }
 
     verifiedRxId = rxRecord.id;
@@ -157,6 +171,7 @@ export async function placeOrderWithFEFO(input: PlaceOrderInput): Promise<PlaceO
       if (remainingRequired <= 0) break;
 
       const deductQty = Math.min(batch.stock_quantity, remainingRequired);
+      // Always use the validated catalog price; never trust a client-provided price.
       const unitPrice = medInfo.basePrice;
 
       allocatedLineItems.push({
@@ -181,6 +196,11 @@ export async function placeOrderWithFEFO(input: PlaceOrderInput): Promise<PlaceO
     }
   }
 
+  const deliveryFee = calculatedTotalAmount >= FREE_DELIVERY_THRESHOLD
+    ? 0
+    : STANDARD_DELIVERY_FEE;
+  const totalAmount = calculatedTotalAmount + deliveryFee;
+
   // Step 4: ACID Database Transaction via Supabase RPC or Atomic Sequence
   // Determine initial order status
   const orderStatus = requiresRx ? "processing" : "approved";
@@ -194,7 +214,7 @@ export async function placeOrderWithFEFO(input: PlaceOrderInput): Promise<PlaceO
         prescription_id: verifiedRxId,
         shipping_address_id: shippingAddressId || null,
         status: orderStatus,
-        total_amount: calculatedTotalAmount,
+        total_amount: totalAmount,
         payment_status: "pending",
       },
     ])
@@ -250,7 +270,9 @@ export async function placeOrderWithFEFO(input: PlaceOrderInput): Promise<PlaceO
   return {
     orderId,
     status: orderStatus,
-    totalAmount: calculatedTotalAmount,
+    subtotal: calculatedTotalAmount,
+    deliveryFee,
+    totalAmount,
     allocatedItems: allocatedLineItems,
   };
 }

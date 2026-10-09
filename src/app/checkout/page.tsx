@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, CreditCard, Truck, CheckCircle, ShieldCheck, Loader2, MapPin, AlertCircle, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -8,12 +8,9 @@ import { useAuth } from "@/context/AuthContext";
 import CartState from "@/components/CartState";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { DeliveryAddress, Order } from "@/lib/types";
 import { isValidIndianPhoneNumber, isValidIndianPostalCode, isValidName, isValidAddress } from "@/lib/validation";
 import dynamic from "next/dynamic";
-import { Timestamp } from "firebase/firestore";
 
 const TrackingModal = dynamic(() => import("@/components/TrackingModal"), {
     ssr: false,
@@ -54,8 +51,42 @@ const CheckoutPage = () => {
         phoneNumber: "",
         postalCode: "",
     });
+    const [savedAddresses, setSavedAddresses] = useState<Array<DeliveryAddress & { id: string; is_default: boolean }>>([]);
+    const [selectedSavedAddress, setSelectedSavedAddress] = useState("");
+    const [saveAddress, setSaveAddress] = useState(false);
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+    useEffect(() => {
+        if (!user) return;
+        void fetch("/api/v1/addresses", {
+            headers: { "X-User-UID": user.id, "X-User-Email": user.email || "" },
+        }).then(async (response) => {
+            if (!response.ok) return;
+            const result = await response.json();
+            const mapped = (result.data || []).map((item: any) => ({
+                id: item.id,
+                firstName: item.first_name || "",
+                lastName: item.last_name || "",
+                address: item.street,
+                phoneNumber: item.phone || "",
+                postalCode: item.postal_code,
+                is_default: item.is_default,
+            }));
+            setSavedAddresses(mapped);
+            const defaultAddress = mapped.find((item: { is_default: boolean }) => item.is_default);
+            if (defaultAddress) {
+                setSelectedSavedAddress(defaultAddress.id);
+                setAddress(defaultAddress);
+            }
+        }).catch((error) => console.error("Failed to load saved addresses:", error));
+    }, [user]);
+
+    const selectSavedAddress = (id: string) => {
+        setSelectedSavedAddress(id);
+        const selected = savedAddresses.find((item) => item.id === id);
+        if (selected) setAddress(selected);
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -213,46 +244,58 @@ const CheckoutPage = () => {
             return;
         }
 
+        if (!user) {
+            alert("Please log in before placing an order.");
+            return;
+        }
+
         setLoading(true);
         try {
-            const userId = user ? user.uid : `guest_${Date.now()}`;
-            const orderStatus = selectedMethod === "UPI" ? "Pending Verification" : "Order Placed";
-            const pMethod = selectedMethod === "COD" ? "COD" : "Google Pay";
+            const response = await fetch("/api/v1/orders/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-User-UID": user.id,
+                    "X-User-Email": user.email || "",
+                },
+                body: JSON.stringify({
+                    items: cart.map((item) => ({
+                        medicineId: item.id,
+                        quantity: item.quantity,
+                    })),
+                    deliveryAddress: address,
+                    paymentMethod: selectedMethod,
+                    transactionId: selectedMethod === "UPI" ? utrNumber : undefined,
+                }),
+            });
 
-            let orderIdResult = `mock_ord_${Math.random().toString(36).substr(2, 9)}`;
-            let firestoreSucceeded = false;
-
-            try {
-                const orderRef = await addDoc(collection(db, "orders"), {
-                    userId,
-                    items: cart,
-                    subtotal,
-                    deliveryFee,
-                    total,
-                    status: orderStatus,
-                    paymentMethod: selectedMethod === "COD" ? "Cash on Delivery" : "UPI (QR Scan)",
-                    transactionId: selectedMethod === "UPI" ? utrNumber : null,
-                    address,
-                    locationVerified: locationVerified,
-                    createdAt: serverTimestamp(),
-                });
-                orderIdResult = orderRef.id;
-                firestoreSucceeded = true;
-            } catch (fsErr) {
-                console.warn("Firestore order write failed due to permissions, using local mockup:", fsErr);
+            const result = await response.json();
+            if (!response.ok || !result.success || !result.data?.orderId) {
+                throw new Error(result.error || "Failed to place order.");
             }
 
+            const orderIdResult = result.data.orderId as string;
+            if (saveAddress && user) {
+                const saveResponse = await fetch("/api/v1/addresses", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "X-User-UID": user.id, "X-User-Email": user.email || "" },
+                    body: JSON.stringify({ ...address, isDefault: savedAddresses.length === 0 }),
+                });
+                if (!saveResponse.ok) console.error("Address could not be saved for future checkout.");
+            }
+            const orderStatus = selectedMethod === "UPI" ? "Pending Verification" : "Order Placed";
+            const pMethod = selectedMethod === "COD" ? "COD" : "Google Pay";
             const newOrder: Order = {
                 id: orderIdResult,
-                userId,
+                userId: user.id,
                 items: cart,
-                subtotal,
-                deliveryFee,
-                total,
+                subtotal: Number(result.data.subtotal),
+                total: Number(result.data.totalAmount),
+                deliveryFee: Number(result.data.deliveryFee),
                 status: orderStatus,
                 paymentMethod: pMethod,
                 address,
-                createdAt: Timestamp.now(),
+                createdAt: new Date(),
             };
 
             // Store in guest_orders localStorage for instant tracking
@@ -319,6 +362,15 @@ const CheckoutPage = () => {
                                                 <Truck className="text-primary" />
                                                 <h2 className="text-xl font-bold">Delivery Address</h2>
                                             </div>
+                                            {savedAddresses.length > 0 && (
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Use a saved address</label>
+                                                    <select value={selectedSavedAddress} onChange={(event) => selectSavedAddress(event.target.value)} className="h-12 w-full rounded-xl border border-slate-200 px-4 outline-none focus:border-primary">
+                                                        <option value="">Enter a new address</option>
+                                                        {savedAddresses.map((saved) => <option key={saved.id} value={saved.id}>{saved.firstName} {saved.lastName} - {saved.postalCode}</option>)}
+                                                    </select>
+                                                </div>
+                                            )}
                                             <button
                                                 onClick={detectLocation}
                                                 disabled={detectingLocation}
@@ -354,6 +406,12 @@ const CheckoutPage = () => {
                                                 {errors.lastName && <p className="text-xs text-red-500 font-medium">{errors.lastName}</p>}
                                             </div>
                                         </div>
+                                        {user && (
+                                            <label className="flex items-center gap-2 text-sm text-slate-600">
+                                                <input type="checkbox" checked={saveAddress} onChange={(event) => setSaveAddress(event.target.checked)} className="h-4 w-4 accent-primary" />
+                                                Save this address for future orders
+                                            </label>
+                                        )}
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Full Address</label>
                                             <textarea
@@ -462,7 +520,10 @@ const CheckoutPage = () => {
                                                     <div className="w-48 h-48 bg-white p-2 rounded-xl mx-auto border border-slate-200 mb-2 flex items-center justify-center">
                                                         {/* Dynamic QR Code - Robust Generation */}
                                                         {(() => {
-                                                            const upiId = process.env.NEXT_PUBLIC_UPI_ID || "8707535798@ybl";
+                                                            const upiId = process.env.NEXT_PUBLIC_UPI_ID;
+                                                            if (!upiId) {
+                                                                return <p className="text-sm text-red-600">UPI payment is not configured.</p>;
+                                                            }
                                                             const payeeName = "DawaKhana";
                                                             const amount = total.toFixed(2);
                                                             const note = `Order Payment`;

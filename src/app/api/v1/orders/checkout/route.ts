@@ -2,13 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { placeOrderWithFEFO } from "@/server/services/orderEngine";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || "fallback_super_secret_jwt_key_32bytes!";
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET;
 
 /**
  * POST /api/v1/orders/checkout — FEFO Inventory Deduction & Order Placement
  */
 export async function POST(request: NextRequest) {
   try {
+    if (!JWT_SECRET) {
+      return NextResponse.json({ success: false, error: "Checkout authentication is not configured." }, { status: 503 });
+    }
     // 1. Authenticate JWT
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

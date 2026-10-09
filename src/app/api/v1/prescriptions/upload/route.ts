@@ -2,14 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { uploadPrivatePrescription } from "@/server/services/storage";
 import { createPrescriptionRecord } from "@/server/services/prescription";
 import jwt from "jsonwebtoken";
+import { verifyAuth } from "@/lib/middleware/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || "fallback_super_secret_jwt_key_32bytes!";
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET;
 
 /**
  * POST /api/v1/prescriptions/upload — Secure Prescription Upload Endpoint
  */
 export async function POST(request: NextRequest) {
   try {
+    const headerAuth = await verifyAuth(request);
+    if (headerAuth.authenticated) {
+      if (!["customer", "admin"].includes(headerAuth.role || "customer")) {
+        return NextResponse.json({ success: false, error: "Only customers and admins can upload prescriptions." }, { status: 403 });
+      }
+    }
+
+    if (!JWT_SECRET) {
+      return NextResponse.json({ success: false, error: "Prescription authentication is not configured." }, { status: 503 });
+    }
     // 1. Authenticate JWT & Enforce RBAC
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

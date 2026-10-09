@@ -89,8 +89,12 @@ export default function TrackingModal({ order, onClose }: TrackingModalProps) {
 
     // WebSocket connection using the exact code structure provided
     useEffect(() => {
-        const clusterId = process.env.NEXT_PUBLIC_PIESOCKET_CLUSTER_ID || "demo";
-        const apiKey = process.env.NEXT_PUBLIC_PIESOCKET_API_KEY || "o7ee7Gx2uoljttEsJqwcfuoP1mGL1HCD6gKmNuCc";
+        const clusterId = process.env.NEXT_PUBLIC_PIESOCKET_CLUSTER_ID;
+        const apiKey = process.env.NEXT_PUBLIC_PIESOCKET_API_KEY;
+        if (!clusterId || !apiKey) {
+            addLog("Real-time tracking is not configured.", "error");
+            return;
+        }
         const roomId = `order_${order.id}`;
         const wsUrl = `wss://${clusterId}.piesocket.com/v3/${roomId}?api_key=${apiKey}`;
 
