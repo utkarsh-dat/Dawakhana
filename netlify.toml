@@ -1,7 +1,6 @@
 [build]
-  base = "dawakhana"
   command = "npm run build"
-  publish = "dawakhana/.next"
+  publish = ".next"
 
 [build.environment]
   SECRETS_SCAN_ENABLED = "false"
