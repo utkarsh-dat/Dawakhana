@@ -23,7 +23,7 @@ const Footer = () => {
                     </p>
                     <div className="flex gap-4 justify-center sm:justify-start">
                         <Link href="#" className="p-2 hover:text-primary hover:bg-slate-800 rounded-lg transition-colors"><Facebook size={20} /></Link>
-                        <Link href="#" className="p-2 hover:text-primary hover:bg-slate-800 rounded-lg transition-colors"><Twitter size={20} /></Link>
+                        <Link href="https://x.com/Dawakhana011" target="_blank" rel="noopener noreferrer" className="p-2 hover:text-primary hover:bg-slate-800 rounded-lg transition-colors"><Twitter size={20} /></Link>
                         <Link href="https://instagram.com/dawakhana.011" target="_blank" rel="noopener noreferrer" className="p-2 hover:text-primary hover:bg-slate-800 rounded-lg transition-colors"><Instagram size={20} /></Link>
                     </div>
                 </div>
