@@ -10,7 +10,7 @@ export default function JsonLd() {
         "description": "Your trusted online pharmacy for authentic medicines",
         "contactPoint": {
             "@type": "ContactPoint",
-            "email": "utkarshparmar2367@gmail.com",
+            "email": "dawakhana011@gmail.com",
             "contactType": "customer service"
         },
         "sameAs": [

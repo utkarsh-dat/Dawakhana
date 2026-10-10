@@ -16,7 +16,7 @@ export default function TermsPage() {
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Pricing and payment</h2><p>Prices, delivery charges, and availability may change. You agree to provide valid payment information and authorize us to process the selected payment method for confirmed orders.</p></section>
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Delivery and cancellation</h2><p>Delivery estimates are indicative and may be affected by courier or location conditions. Cancellation, return, and refund requests are handled under the applicable policies shown on this website.</p></section>
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Account responsibility</h2><p>You are responsible for maintaining the security of your account and for activity performed through it. Contact support promptly if you notice unauthorized activity.</p></section>
-            <section><h2 className="mb-2 text-xl font-bold text-slate-900">Contact</h2><p>Questions about these terms can be sent to <a className="font-semibold text-primary" href="mailto:utkarshparmar2367@gmail.com">utkarshparmar2367@gmail.com</a>.</p></section>
+            <section><h2 className="mb-2 text-xl font-bold text-slate-900">Contact</h2><p>Questions about these terms can be sent to <a className="font-semibold text-primary" href="mailto:dawakhana011@gmail.com">dawakhana011@gmail.com</a>.</p></section>
         </article>
     </main><Footer /></div>;
 }

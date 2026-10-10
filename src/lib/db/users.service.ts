@@ -32,7 +32,7 @@ export interface UserProfile {
 }
 
 // Hardcoded admin emails (matching existing AuthContext.tsx)
-const ADMIN_EMAILS = ["vickynishad011@gmail.com", "utkarshparmar2367@gmail.com"];
+const ADMIN_EMAILS = ["vickynishad011@gmail.com", "dawakhana011@gmail.com"];
 
 // ─── User Profile Management ────────────────────────────────────────────────
 

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import supabase from "@/lib/supabaseClient";
 
-const ADMIN_EMAILS = ["vickynishad011@gmail.com", "utkarshparmar2367@gmail.com"];
+const ADMIN_EMAILS = ["vickynishad011@gmail.com", "dawakhana011@gmail.com"];
 const PHARMACIST_EMAILS = ["pharmacist@dawakhana.com"];
 const DELIVERY_EMAILS = ["delivery@dawakhana.com"];
 

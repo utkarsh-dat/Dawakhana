@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Prescription and health information</h2><p>Prescription documents are treated as private and are restricted to the customer and authorized pharmacy staff. They are stored using protected access controls and time-limited viewing links where applicable.</p></section>
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Sharing and security</h2><p>We share only the information required with delivery, payment, and technology service providers. We use access controls and reasonable security measures, but no internet transmission can be guaranteed to be completely secure.</p></section>
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Your choices</h2><p>You may request access, correction, or deletion of eligible account information by contacting support. Some records may need to be retained for legal, safety, accounting, or transaction purposes.</p></section>
-            <section><h2 className="mb-2 text-xl font-bold text-slate-900">Contact us</h2><p>For privacy questions, email <a className="font-semibold text-primary" href="mailto:utkarshparmar2367@gmail.com">utkarshparmar2367@gmail.com</a> or call +91 8707535798.</p></section>
+            <section><h2 className="mb-2 text-xl font-bold text-slate-900">Contact us</h2><p>For privacy questions, email <a className="font-semibold text-primary" href="mailto:dawakhana011@gmail.com">dawakhana011@gmail.com</a> or call +91 8707535798.</p></section>
         </article>
     </main><Footer /></div>;
 }

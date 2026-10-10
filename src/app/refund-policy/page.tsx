@@ -15,7 +15,7 @@ export default function RefundPolicyPage() {
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Returns</h2><p>Return requests may be submitted for eligible delivered orders. Include the order number and a clear reason. Medicines that have been opened, used, damaged after delivery, or stored improperly may not qualify for return.</p></section>
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Refund review</h2><p>Each request is reviewed by our support or pharmacy team. Approved refunds are issued to the original payment method where possible. Cash-on-delivery refunds may require additional payment details.</p></section>
             <section><h2 className="mb-2 text-xl font-bold text-slate-900">Damaged or incorrect items</h2><p>Contact support as soon as possible with your order number and photographs of the package or item. Do not use a damaged or incorrect medicine.</p></section>
-            <section><h2 className="mb-2 text-xl font-bold text-slate-900">Contact support</h2><p>Call +91 8707535798 or email <a className="font-semibold text-primary" href="mailto:utkarshparmar2367@gmail.com">utkarshparmar2367@gmail.com</a> for assistance.</p></section>
+            <section><h2 className="mb-2 text-xl font-bold text-slate-900">Contact support</h2><p>Call +91 8707535798 or email <a className="font-semibold text-primary" href="mailto:dawakhana011@gmail.com">dawakhana011@gmail.com</a> for assistance.</p></section>
         </article>
     </main><Footer /></div>;
 }
